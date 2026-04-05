@@ -3,34 +3,38 @@
 ## Overview
 A home lab covering infrastructure, services, observability, networking, and automation.
 
-## Goals
-- Centralize logs from all homelab services and infrastructure
-- Collect and visualize system and application metrics
-- Set up alerting for failures, anomalies, and threshold breaches
-- Monitor network traffic, latency, and connectivity
-
 ## Services
-- **Kubernetes** — Container orchestration cluster for running homelab workloads
+- **Kubernetes (k3s)** — Single-node k3s cluster running on `melody-beast` (192.168.1.97) ✅
 
-## Key Features
-- **Logging** — Centralized log aggregation and search (e.g. Loki, Elasticsearch)
-- **Metrics** — Time-series metrics collection and dashboards (e.g. Prometheus, Grafana)
-- **Alerting** — Alert rules and notification routing (e.g. Alertmanager, PagerDuty)
-- **Network Monitoring** — Traffic analysis, uptime checks, and latency tracking (e.g. Smokeping, ntopng, Uptime Kuma)
-- **Tracing** — Distributed tracing for services (e.g. Tempo, Jaeger)
+## Observability
+- **Logging** — Loki + Grafana Alloy + Grafana, deployed to k3s ✅
+- **Metrics** — Prometheus + Grafana *(planned)*
+- **Alerting** — Alertmanager *(planned)*
+- **Network Monitoring** — Uptime Kuma / ntopng *(planned)*
+- **Tracing** — Tempo / Jaeger *(planned)*
 
 ## Pages
 - [[Commands|Commands]] — Bootstrap, startup, and quick-reference commands
 - [[Kubernetes|Kubernetes (k3s)]] — Install plan, network architecture, and ingress setup
+- [[Logging|Logging (Loki + Alloy + Grafana)]] — Log aggregation architecture, deploy plan, and access
 
 ## Ideas & Notes
 
 ## Resources
+- Grafana: `http://grafana.homelab.local` (or `kubectl port-forward svc/grafana 3000:80 -n logging`)
+- Loki push endpoint: `http://192.168.1.97:31900/loki/api/v1/push`
+- Infra repo: `~/src/home_infra`
 
 ## Status
-- [ ] Define scope — which hosts, services, and network devices to cover
-- [ ] Choose and deploy metrics stack (Prometheus + Grafana or Victoria Metrics)
-- [ ] Choose and deploy logging stack (Loki + Promtail or ELK)
+- [x] Set up k3s single-node cluster
+- [x] Configure kubeconfig
+- [x] Install Helm
+- [x] Deploy logging stack (Loki + Alloy + Grafana)
+- [x] Automate install/uninstall/test with scripts
+- [x] Confirm logs flowing from k8s pods into Loki
+- [ ] Add `/etc/hosts` entry on LAN machines for `grafana.homelab.local`
+- [ ] Install Alloy agent on remote LAN devices
+- [ ] Set up metrics stack (Prometheus + Grafana)
+- [ ] Set up alerting
 - [ ] Set up network monitoring
-- [ ] Configure alerting rules and notification channels
 - [ ] Build unified Grafana dashboards

@@ -1,0 +1,4 @@
+.cm-contentContainer,
+.markdown-preview-view {
+  max-width: 100% !important;
+}

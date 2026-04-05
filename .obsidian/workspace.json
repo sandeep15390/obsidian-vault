@@ -27,12 +27,12 @@
             "state": {
               "type": "split-diff-view",
               "state": {
-                "aFile": "Projects/Telugu Teacher/Architecture & Project Plan.md",
-                "bFile": "Projects/Telugu Teacher/Architecture & Project Plan.md",
+                "aFile": "Projects/Homelab/Kubernetes.md",
+                "bFile": "Projects/Homelab/Kubernetes.md",
                 "aRef": ""
               },
               "icon": "diff",
-              "title": "Diff: Architecture & Project Plan  (Working Tree)"
+              "title": "Diff: Kubernetes  (Working Tree)"
             }
           }
         ],
@@ -89,8 +89,7 @@
               "title": "Bookmarks"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "horizontal",
@@ -128,11 +127,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
+                "file": "Projects/Homelab/Kubernetes.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links"
+              "title": "Outgoing links from Kubernetes"
             }
           },
           {
@@ -170,12 +170,13 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "Projects/Homelab/Kubernetes.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline"
+              "title": "Outline of Kubernetes"
             }
           },
           {
@@ -209,28 +210,32 @@
   },
   "active": "c0a0e7b09aedba44",
   "lastOpenFiles": [
-    "Projects/Homelab/Kubernetes.md",
+    "Projects/Homelab/Logging.md",
     "Projects/Homelab/Overview.md",
-    "Projects/Homelab/Overview.md.tmp.48575.1775358180649",
-    "Projects/Homelab/Kubernetes.md.tmp.48575.1775358170521",
-    "Projects/Homelab/Overview.md.tmp.48575.1775357978586",
-    "Projects/README.md.tmp.48575.1775357937487",
-    "Projects/Homelab/Commands.md.tmp.48575.1775357934787",
-    "Projects/Homelab/Overview.md.tmp.48575.1775357931765",
+    "Projects/Homelab/Kubernetes.md",
+    "Projects/Homelab/Logging.md.tmp.68920.1775399555625",
+    "Projects/Homelab/Kubernetes.md.tmp.68920.1775399534057",
+    "Projects/Homelab/Overview.md.tmp.68920.1775399520753",
+    "Projects/Homelab/Logging.md.tmp.60541.1775361120952",
+    "Projects/Homelab/Logging.md.tmp.48575.1775360231137",
+    "Projects/Homelab/Logging.md.tmp.48575.1775359862855",
+    "Projects/Homelab/Overview.md.tmp.48575.1775359704518",
+    "Projects/Homelab/Logging.md.tmp.48575.1775359693566",
     "Projects/Homelab/Commands.md",
+    "Projects/README.md",
     "Projects/Telugu Teacher/Architecture & Project Plan.md",
+    "Untitled 1.base",
+    "2026-04-04.md",
+    "Untitled 2.canvas",
+    "Untitled.base",
+    "Untitled 1.canvas",
     "Projects/Homelab Observability/Commands.md",
-    "Projects/Homelab",
-    "Projects/Homelab Observability/Commands.md.tmp.48575.1775357825572",
-    "Projects/Homelab Observability/Overview.md.tmp.48575.1775357163540",
-    "Projects/Homelab Observability/Commands.md.tmp.48575.1775357148254",
     "Projects/Homelab Observability/Overview.md",
     "Projects/Telugu Teacher/Overview.md",
     "Projects/Market Time Machine/Overview.md",
     "Projects/WhatsApp Telugu-English Translator Bot/Overview.md",
     "Untitled.canvas",
     "First Page.md",
-    "Projects/README.md",
     "Projects/Telugu Teacher Voice Agent.md",
     "Projects/Market Time Machine.md",
     "Projects/WhatsApp Telugu-English Translator Bot.md",
