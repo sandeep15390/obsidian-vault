@@ -1,0 +1,1 @@
+this is the first obsidian page I created. Testing how the git commit and push works 
