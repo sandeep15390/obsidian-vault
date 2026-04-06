@@ -25,14 +25,14 @@
             "id": "c0a0e7b09aedba44",
             "type": "leaf",
             "state": {
-              "type": "split-diff-view",
+              "type": "markdown",
               "state": {
-                "aFile": "Projects/Homelab/Kubernetes.md",
-                "bFile": "Projects/Homelab/Kubernetes.md",
-                "aRef": ""
+                "file": "Projects/Homelab/Overview.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "diff",
-              "title": "Diff: Kubernetes  (Working Tree)"
+              "icon": "lucide-file",
+              "title": "Overview"
             }
           }
         ],
@@ -109,6 +109,7 @@
             "state": {
               "type": "backlink",
               "state": {
+                "file": "Projects/Homelab/Overview.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -118,7 +119,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks"
+              "title": "Backlinks for Overview"
             }
           },
           {
@@ -210,24 +211,24 @@
   },
   "active": "c0a0e7b09aedba44",
   "lastOpenFiles": [
-    "Projects/Homelab/Logging.md",
-    "Projects/Homelab/Overview.md",
     "Projects/Homelab/Kubernetes.md",
+    "Projects/Homelab/Logging.md",
+    "Projects/Homelab/Logging.md.tmp.68920.1775481851309",
+    "Projects/Homelab/Logging.md.tmp.68920.1775481837571",
+    "Projects/Homelab/Logging.md.tmp.68920.1775481830331",
+    "Projects/Homelab/Logging.md.tmp.68920.1775481804331",
+    "Projects/Homelab/Logging.md.tmp.68920.1775479718333",
+    "Projects/Homelab/Kubernetes.md.tmp.68920.1775479710874",
+    "Projects/Homelab/Logging.md.tmp.68920.1775477487321",
+    "Projects/Homelab/Logging.md.tmp.68920.1775477481861",
+    "Projects/Homelab/Logging.md.tmp.68920.1775477471639",
+    "Projects/Homelab/Overview.md",
     "Projects/Homelab/Logging.md.tmp.68920.1775399555625",
-    "Projects/Homelab/Kubernetes.md.tmp.68920.1775399534057",
-    "Projects/Homelab/Overview.md.tmp.68920.1775399520753",
-    "Projects/Homelab/Logging.md.tmp.60541.1775361120952",
-    "Projects/Homelab/Logging.md.tmp.48575.1775360231137",
-    "Projects/Homelab/Logging.md.tmp.48575.1775359862855",
-    "Projects/Homelab/Overview.md.tmp.48575.1775359704518",
-    "Projects/Homelab/Logging.md.tmp.48575.1775359693566",
     "Projects/Homelab/Commands.md",
     "Projects/README.md",
     "Projects/Telugu Teacher/Architecture & Project Plan.md",
-    "Untitled 1.base",
     "2026-04-04.md",
     "Untitled 2.canvas",
-    "Untitled.base",
     "Untitled 1.canvas",
     "Projects/Homelab Observability/Commands.md",
     "Projects/Homelab Observability/Overview.md",

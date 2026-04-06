@@ -106,6 +106,65 @@ kubectl get nodes
 
 ---
 
+## Troubleshooting
+
+### All ingresses return 404 / Traefik loses API server connectivity
+
+**Symptom:** Every request through Traefik returns `404 page not found`, including rules that were previously working. Traefik logs flood with:
+```
+Failed to watch: dial tcp 10.43.0.1:443: connect: no route to host
+```
+
+**Cause:** The k3s cluster service network (`10.43.0.0/16`) becomes unreachable from inside pods. This is typically caused by Tailscale (or any tool that modifies iptables) flushing or overwriting the kernel routing rules that flannel sets up.
+
+**Fix:** Restart k3s — this reinitialises flannel and restores all service network iptables rules:
+```bash
+sudo systemctl restart k3s
+# Wait ~30s then verify
+kubectl get pods -A
+kubectl logs -n kube-system deployment/traefik --tail=5
+```
+
+Traefik should reconnect to the API server, reload all Ingress/IngressRoute rules, and start routing correctly.
+
+**Check for this problem:**
+```bash
+# From the Traefik pod — if this fails, the service network is broken
+kubectl exec -n kube-system deployment/traefik -- wget -qO- https://10.43.0.1:443 2>&1 | head -3
+```
+
+---
+
+### tailscale serve rewrites the Host header
+
+When using `tailscale serve https / http://127.0.0.1:80` to expose a service through the tailnet, `tailscale serve` does **not** forward the original client hostname. It replaces the `Host` header with the backend address:
+
+| tailscale serve target | Host header forwarded to backend |
+|---|---|
+| `http://127.0.0.1:80` | `Host: 127.0.0.1` |
+| `http://127.0.0.1:9998` | `Host: 127.0.0.1:9998` |
+
+This means Traefik ingress rules matching `host: melody-beast.tailc98a25.ts.net` will never fire. Use a Traefik **IngressRoute CRD** matching `Host("127.0.0.1")` instead (standard Kubernetes Ingress rejects IP addresses as hosts):
+
+```yaml
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: my-service-tailscale
+  namespace: my-namespace
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`127.0.0.1`)
+      kind: Rule
+      services:
+        - name: my-service
+          port: 80
+```
+
+---
+
 ## External Access (Optional)
 
 **Option A — Cloudflare Tunnel** (no port forwarding needed):

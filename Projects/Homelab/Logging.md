@@ -7,6 +7,8 @@
 - [x] All 24 validation tests passing
 - [x] Confirm in-cluster logs flowing (Alloy → Loki)
 - [x] Grafana accessible and Loki datasource connected
+- [x] Grafana exposed on tailnet as `https://grafana.tailc98a25.ts.net`
+- [x] Approve tailnet service at login.tailscale.com/admin/machines (one-time)
 - [ ] Add `grafana.homelab.local` to `/etc/hosts` on LAN machines
 - [ ] Install Alloy agent on remote LAN devices
 - [ ] Build first log dashboard
@@ -73,7 +75,13 @@ Any new workload deployed to the cluster will be picked up automatically.
 
 ## Accessing Grafana
 
-**Option A — Hostname (recommended)**
+**Option A — Tailscale (recommended)**
+
+Open: `https://grafana.tailc98a25.ts.net`
+
+Grafana is registered as a named tailnet service (`svc:grafana`). Works from any device on the tailnet — no DNS or `/etc/hosts` configuration needed.
+
+**Option B — LAN hostname**
 
 Add to `/etc/hosts` on your machine:
 ```
@@ -81,7 +89,7 @@ Add to `/etc/hosts` on your machine:
 ```
 Then open: `http://grafana.homelab.local`
 
-**Option B — Port forward (no /etc/hosts needed)**
+**Option C — Port forward (no setup needed)**
 ```bash
 kubectl port-forward svc/grafana 3000:80 -n logging
 ```
@@ -94,6 +102,32 @@ kubectl get secret --namespace logging grafana \
   -o jsonpath="{.data.admin-password}" | base64 --decode; echo
 ```
 Username: `admin`
+
+### Tailscale service setup
+
+Grafana is exposed via a dedicated NodePort service (`grafana-tailscale`, port 32300) and a named tailnet service. Run from `~/src/home_infra/tailscale/`:
+
+```bash
+# Expose (run once; admin approval required on first run)
+./apply.sh
+# equivalent to:
+sudo tailscale serve --service=svc:grafana --https=443 127.0.0.1:32300
+
+# Remove
+./teardown.sh
+```
+
+**First-time only**: after running `apply.sh`, approve the service at `login.tailscale.com/admin/machines`.
+
+Traffic flow:
+```
+Browser → https://grafana.tailc98a25.ts.net
+→ Tailscale (TLS termination)
+→ http://127.0.0.1:32300  (grafana-tailscale NodePort)
+→ Grafana pod :3000
+```
+
+> Why NodePort and not Traefik? `tailscale serve` rewrites the `Host` header to the backend address (`127.0.0.1`), breaking Traefik's host-based routing. The NodePort approach bypasses Traefik entirely. See [[Kubernetes#tailscale serve rewrites the Host header]].
 
 ---
 
@@ -178,7 +212,8 @@ home_infra/logging/
 │   ├── alloy-config.yaml             # Alloy River config (pod + journal logs)
 │   ├── alloy-values.yaml             # Alloy Helm values (DaemonSet)
 │   ├── loki-nodeport.yaml            # loki-external LoadBalancer service (:31900)
-│   └── grafana-ingress.yaml          # Grafana Traefik ingress
+│   ├── grafana-ingress.yaml          # Grafana Traefik ingress (grafana.homelab.local)
+│   └── grafana-tailscale-nodeport.yaml # Grafana NodePort for tailscale serve (:32300)
 └── scripts/
     ├── install-alloy-agent.sh        # Install Alloy on a remote device
     └── uninstall-alloy-agent.sh      # Remove Alloy from a remote device
