@@ -17,7 +17,7 @@
 | Property | Value |
 |---|---|
 | Node | `melody-beast` |
-| IP | `192.168.1.97` |
+| IP | `10.0.0.7` |
 | k3s version | `v1.34.6+k3s1` |
 | Role | `control-plane` |
 | Ingress | Traefik (built-in) |
@@ -35,7 +35,7 @@ graph TD
     LAN["🏠 LAN Devices\n(laptops, phones, etc.)"]
     Tunnel["☁️ Cloudflare Tunnel\n(optional, external access)"]
 
-    subgraph Node["Ubuntu Node — melody-beast (192.168.1.97)"]
+    subgraph Node["Ubuntu Node — melody-beast (10.0.0.7)"]
         k3s["k3s API Server\n:6443"]
         Traefik["Traefik Ingress\n:80 / :443"]
         ServiceLB["ServiceLB\n(LoadBalancer)"]
@@ -99,8 +99,8 @@ curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
 On the remote machine:
 ```bash
-scp melody@192.168.1.97:~/.kube/config ~/.kube/config
-# Edit ~/.kube/config and replace 127.0.0.1 with 192.168.1.97
+scp melody@10.0.0.7:~/.kube/config ~/.kube/config
+# Edit ~/.kube/config and replace 127.0.0.1 with 10.0.0.7
 kubectl get nodes
 ```
 
@@ -175,4 +175,4 @@ cloudflared tunnel run homelab
 ```
 
 **Option B — Router port forward**
-- Forward ports `80` and `443` on your router to `192.168.1.97`
+- Forward ports `80` and `443` on your router to `10.0.0.7`

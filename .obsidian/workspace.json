@@ -25,14 +25,14 @@
             "id": "c0a0e7b09aedba44",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "split-diff-view",
               "state": {
-                "file": "Projects/Homelab/Overview.md",
-                "mode": "source",
-                "source": false
+                "aFile": "Projects/Homelab/Kubernetes.md",
+                "bFile": "Projects/Homelab/Kubernetes.md",
+                "aRef": ""
               },
-              "icon": "lucide-file",
-              "title": "Overview"
+              "icon": "diff",
+              "title": "Diff: Kubernetes  (Working Tree)"
             }
           }
         ],
@@ -109,7 +109,6 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Projects/Homelab/Overview.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -119,7 +118,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for Overview"
+              "title": "Backlinks"
             }
           },
           {
@@ -213,18 +212,20 @@
   "lastOpenFiles": [
     "Projects/Homelab/Kubernetes.md",
     "Projects/Homelab/Logging.md",
-    "Projects/Homelab/Logging.md.tmp.68920.1775481851309",
-    "Projects/Homelab/Logging.md.tmp.68920.1775481837571",
-    "Projects/Homelab/Logging.md.tmp.68920.1775481830331",
-    "Projects/Homelab/Logging.md.tmp.68920.1775481804331",
-    "Projects/Homelab/Logging.md.tmp.68920.1775479718333",
-    "Projects/Homelab/Kubernetes.md.tmp.68920.1775479710874",
-    "Projects/Homelab/Logging.md.tmp.68920.1775477487321",
-    "Projects/Homelab/Logging.md.tmp.68920.1775477481861",
-    "Projects/Homelab/Logging.md.tmp.68920.1775477471639",
-    "Projects/Homelab/Overview.md",
-    "Projects/Homelab/Logging.md.tmp.68920.1775399555625",
+    "Projects/Homelab/Teardown Reinstall Validation.md",
+    "Projects/Homelab/iptables Watchdog.md",
     "Projects/Homelab/Commands.md",
+    "Projects/Homelab/Logging.md.tmp.68920.1775740009441",
+    "Projects/Homelab/Logging.md.tmp.68920.1775739999128",
+    "Projects/Homelab/Logging.md.tmp.68920.1775739995888",
+    "Projects/Homelab/Overview.md",
+    "Projects/Homelab/Overview.md.tmp.68920.1775739991350",
+    "Projects/Homelab/Overview.md.tmp.68920.1775739985615",
+    "Projects/Homelab/Teardown Reinstall Validation.md.tmp.68920.1775653384347",
+    "Projects/Homelab/Overview.md.tmp.68920.1775652402641",
+    "Projects/Homelab/Teardown Reinstall Validation.md.tmp.68920.1775652393828",
+    "Projects/Homelab/Logging.md.tmp.68920.1775650645651",
+    "Projects/Homelab/Logging.md.tmp.68920.1775592398590",
     "Projects/README.md",
     "Projects/Telugu Teacher/Architecture & Project Plan.md",
     "2026-04-04.md",
