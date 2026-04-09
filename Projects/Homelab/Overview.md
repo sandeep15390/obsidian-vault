@@ -8,7 +8,7 @@ A home lab covering infrastructure, services, observability, networking, and aut
 
 ## Observability
 - **Logging** — Loki + Grafana Alloy + Grafana, deployed to k3s ✅ **Complete** — 34 automated tests, teardown/reinstall validated (6 cycles)
-- **Metrics** — Prometheus + Grafana *(planned)*
+- **Metrics** — Prometheus + Alloy + Grafana *(planned)* — see [[Metrics]]
 - **Alerting** — Alertmanager *(planned)*
 - **Network Monitoring** — Uptime Kuma / ntopng *(planned)*
 - **Tracing** — Tempo / Jaeger *(planned)*
@@ -19,6 +19,7 @@ A home lab covering infrastructure, services, observability, networking, and aut
 - [[Logging|Logging (Loki + Alloy + Grafana)]] — Log aggregation architecture, deploy plan, and access
 - [[iptables Watchdog|iptables Watchdog]] — Runbook for k3s/Tailscale iptables conflict detection and recovery
 - [[Teardown Reinstall Validation|Teardown / Reinstall Validation]] — Evidence report: 3 clean cycles, 34/34 tests, bugs fixed
+- [[Metrics|Metrics (Prometheus + Alloy + Grafana)]] — Metrics collection architecture, deploy plan, and test suite
 
 ## Possible Automation Gaps
 
