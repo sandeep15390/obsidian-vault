@@ -12,7 +12,7 @@
 - [ ] Install node_exporter on remote tailnet devices
 - [x] Validate teardown/reinstall reproducibility (6 cycles, 0 failures) — see [[Teardown Reinstall Validation]]
 - [x] Validate metric persistence across non-destructive teardown/reinstall
-- [ ] Build first metrics dashboard
+- [x] Build first metrics dashboard — see [[GPU Monitoring]]
 
 ---
 
@@ -266,3 +266,10 @@ sudo ./test.sh               # Run 37 tests (adds Tailscale config checks)
 | Metric retention tuning | Low | Default 15d; adjust based on disk usage over time |
 | Recording rules | Low | Pre-compute expensive PromQL queries for dashboard performance |
 | Remote device Alloy push (alternative to pull) | Low | For devices behind NAT or with unstable tailnet; extend existing Alloy agent config |
+
+---
+
+## See Also
+
+- [[GPU Monitoring]] — DCGM exporter + Grafana dashboard for 2× RTX PRO 6000 Blackwell
+- [[Logging]] — Grafana lives in the logging namespace

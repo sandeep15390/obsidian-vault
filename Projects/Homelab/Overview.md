@@ -8,7 +8,8 @@ A home lab covering infrastructure, services, observability, networking, and aut
 
 ## Observability
 - **Logging** — Loki + Grafana Alloy + Grafana, deployed to k3s ✅ **Complete** — 34 automated tests, teardown/reinstall validated (6 cycles)
-- **Metrics** — Prometheus + Alloy + Grafana *(planned)* — see [[Metrics]]
+- **Metrics** — Prometheus + Alloy + Grafana ✅ **Complete** — 37+ automated tests, teardown/reinstall validated — see [[Metrics]]
+- **GPU Monitoring** — DCGM Exporter + Grafana ✅ **Complete** — 38 automated tests, dashboard uid `gpu-overview`, 2× RTX PRO 6000 Blackwell — see [[GPU Monitoring]]
 - **Alerting** — Alertmanager *(planned)*
 - **Network Monitoring** — Uptime Kuma / ntopng *(planned)*
 - **Tracing** — Tempo / Jaeger *(planned)*
@@ -20,6 +21,7 @@ A home lab covering infrastructure, services, observability, networking, and aut
 - [[iptables Watchdog|iptables Watchdog]] — Runbook for k3s/Tailscale iptables conflict detection and recovery
 - [[Teardown Reinstall Validation|Teardown / Reinstall Validation]] — Evidence report: 3 clean cycles, 34/34 tests, bugs fixed
 - [[Metrics|Metrics (Prometheus + Alloy + Grafana)]] — Metrics collection architecture, deploy plan, and test suite
+- [[GPU Monitoring|GPU Monitoring (DCGM + Grafana)]] — NVIDIA RTX PRO 6000 Blackwell GPU metrics, dashboard, and test suite
 
 ## Possible Automation Gaps
 
@@ -45,6 +47,22 @@ After installing or restarting Tailscale on the same host as k3s, Tailscale can 
 The full rebuild sequence (k3s → kubeconfig → helm → logging stack → tailscale serve) is documented but requires running steps manually across multiple pages.
 - **Fix:** A single `bootstrap.sh` in the root of `home_infra/` that chains all steps would make reimaging fully scriptable.
 
+## Dev Projects
+
+### Gamestore
+A collection of browser-playable classic games hosted as a GitHub repo.
+
+- **Repo:** `git@github.com:sandeep15390/gamestore.git` — local clone at `~/gamestore`
+- **Structure:** `games/<game-name>/web/` per game, supports adding more games or platforms
+
+**Games:**
+
+| Game | Platform | How to play |
+|------|----------|-------------|
+| Snake | Web (HTML/JS) | Open `games/snake/web/index.html` in a browser |
+
+**Adding a new game:** create `games/<name>/web/`, drop in files, update `README.md`.
+
 ## Ideas & Notes
 
 ## Resources
@@ -67,10 +85,10 @@ The full rebuild sequence (k3s → kubeconfig → helm → logging stack → tai
 - [x] Expose Grafana on tailnet (`https://grafana.tailc98a25.ts.net`)
 - [x] Validate teardown/reinstall reproducibility (6 cycles, 0 failures)
 - [x] Validate log persistence across non-destructive teardown/reinstall
-- [ ] Add `/etc/hosts` entry on LAN machines for `grafana.homelab.local`
 - [ ] Install Alloy agent on remote LAN devices
-- [ ] Set up metrics stack (Prometheus + Grafana)
+- [x] Set up metrics stack (Prometheus + Grafana) — see [[Metrics]]
+- [x] Build GPU metrics dashboard (DCGM Exporter + Grafana) — see [[GPU Monitoring]]
 - [ ] Set up alerting
 - [ ] Set up network monitoring
-- [ ] Build unified Grafana dashboards
+- [ ] Build k8s cluster / node overview Grafana dashboards
 - [ ] Create `bootstrap.sh` in `home_infra/` to chain full rebuild (k3s → kubeconfig → helm → logging → tailscale)
