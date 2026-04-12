@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Projects/Homelab/Commands.md",
+                "file": "Projects/Homelab/NVIDIA Device Plugin.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Commands"
+              "title": "NVIDIA Device Plugin"
             }
           }
         ],
@@ -210,12 +210,13 @@
   },
   "active": "c0a0e7b09aedba44",
   "lastOpenFiles": [
+    "Projects/Homelab/Commands.md",
+    "Projects/Homelab/NVIDIA Device Plugin.md",
     "Projects/Homelab/Teardown Reinstall Validation.md",
     "Projects/Homelab/Overview.md",
     "Projects/Homelab/Logging.md",
     "Projects/Homelab/Kubernetes.md",
     "Projects/Homelab/GPU Monitoring.md",
-    "Projects/Homelab/Commands.md",
     "Projects/Homelab/Commands.md.tmp.830220.1775955776078",
     "Projects/Homelab/GPU Monitoring.md.tmp.830220.1775955615295",
     "Projects/Homelab/Metrics.md",
