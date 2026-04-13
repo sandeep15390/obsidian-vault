@@ -6,11 +6,12 @@
 
 ## Status
 
-- [ ] Research k3s/containerd NVIDIA runtime integration
-- [ ] Configure containerd with NVIDIA runtime class
-- [ ] Deploy NVIDIA Device Plugin DaemonSet via Helm
-- [ ] Validate GPU resource allocatable (`kubectl describe node`)
-- [ ] Smoke test GPU pods with CUDA image
+- [x] Research k3s/containerd NVIDIA runtime integration
+- [x] Configure containerd with NVIDIA runtime class
+- [x] Deploy NVIDIA Device Plugin DaemonSet via Helm
+- [x] Validate GPU resource allocatable (`kubectl describe node`)
+- [x] Smoke test GPU pods with CUDA image
+- [x] GPU isolation test (2 pods → 2 distinct GPUs confirmed by UUID)
 - [ ] Update [[GPU Monitoring]] to use K8s-native DCGM exporter (optional future enhancement)
 - [ ] Document GPU workload examples (training, inference, rendering)
 
@@ -18,436 +19,340 @@
 
 ## Architecture
 
-### Current Setup: Host-Based Monitoring Only
-
 ```mermaid
 graph TD
-    GPU["2x RTX PRO 6000 Blackwell"]
-    DCGM["dcgm-exporter<br/>Systemd + Docker<br/>Host-level access"]
-    Alloy["Alloy DaemonSet<br/>Scrapes host:9400"]
-    Prom["Prometheus<br/>GPU metrics"]
-    Grafana["Grafana<br/>GPU Overview dashboard"]
-
-    GPU -->|DCGM FI| DCGM
-    DCGM -->|scraped| Alloy
-    Alloy -->|remote_write| Prom
-    Prom -->|PromQL| Grafana
-
-    style DCGM fill:#e74c3c,stroke:#c0392b
-```
-
-**Limitation**: Kubernetes cannot schedule GPU workloads. DCGM exporter runs at host level — no `nvidia.com/gpu` scheduler awareness.
-
-### Target Setup: Native K8s GPU Support
-
-```mermaid
-graph TD
-    GPU["2x RTX PRO 6000 Blackwell"]
-    Driver["NVIDIA Driver<br/>nvidia-smi, nvidia-ctk"]
-    Containerd["containerd<br/>k3s runtime<br/>NVIDIA runtime class"]
-    DevicePlugin["NVIDIA Device Plugin<br/>DaemonSet<br/>v0.14.5"]
-    Scheduler["K8s Scheduler<br/>nvidia.com/gpu allocatable"]
-    Pods["GPU-enabled Pods<br/>limits: nvidia.com/gpu: 1"]
-    
-    DCGM["dcgm-exporter<br/>Can be migrated<br/>to K8s DaemonSet"]
-    Alloy["Alloy DaemonSet<br/>Scrapes DCGM pods"]
-    Prom["Prometheus<br/>GPU metrics"]
-    Grafana["Grafana<br/>GPU Overview dashboard"]
+    GPU["2x RTX PRO 6000 Blackwell\n97887 MiB each"]
+    Driver["NVIDIA Driver 580.126.09\nnvidia-smi, nvidia-ctk 1.19.0"]
+    Containerd["containerd 2.2.2\nk3s runtime\nNVIDIA runtime class configured"]
+    DevicePlugin["NVIDIA Device Plugin\nDaemonSet v0.17.1\nnvcr.io/nvidia/k8s-device-plugin"]
+    Scheduler["K8s Scheduler\nnvidia.com/gpu: 2 allocatable"]
+    Pods["GPU-enabled Pods\nlimits: nvidia.com/gpu: 1\nruntimeClassName: nvidia"]
 
     Driver -->|exposes devices| GPU
-    Driver -->|configures| Containerd
-    Containerd -->|runtime class| DevicePlugin
+    Driver -->|nvidia-ctk configures| Containerd
+    Containerd -->|RuntimeClass 'nvidia'| DevicePlugin
     DevicePlugin -->|advertises| Scheduler
     Scheduler -->|schedules| Pods
     Pods -->|uses| GPU
-    
-    Pods -.->|optional| DCGM
-    DCGM -.->|scraped| Alloy
-    Alloy -.->|remote_write| Prom
-    Prom -.->|PromQL| Grafana
 
     style DevicePlugin fill:#27ae60,stroke:#229954
     style Containerd fill:#27ae60,stroke:#229954
+    style Pods fill:#27ae60,stroke:#229954
 ```
-
-**Benefits**:
-- Kubernetes can schedule GPU workloads with `resources.limits.nvidia.com/gpu: 1`
-- GPU pods can run DCGM exporter natively (no host systemd service)
-- Multi-tenant GPU access with proper isolation
-- Standard K8s GPU workflow compatible with Argo Workflows, Kubeflow, etc.
 
 ---
 
 ## Prerequisites
 
-### 1. NVIDIA Drivers (already installed)
+All already satisfied on `melody-beast`:
 
-```bash
-nvidia-smi
-# Should show both RTX PRO 6000 GPUs
-```
-
-### 2. NVIDIA Container Toolkit (already installed)
-
-```bash
-nvidia-ctk --version
-# Should be installed system-wide
-```
-
-### 3. Docker NVIDIA Runtime (already configured)
-
-```bash
-sudo docker info 2>/dev/null | grep -q "nvidia"
-# GPU Monitoring project configured this
-```
-
-### 4. containerd NVIDIA Runtime (TO BE CONFIGURED)
-
-**Critical**: k3s uses containerd, not Docker. Need to configure NVIDIA runtime in containerd config.
-
-```bash
-# Check current containerd config (k3s-managed)
-sudo cat /var/lib/rancher/k3s/agent/etc/containerd/config.toml | grep -A5 "nvidia"
-```
-
-If empty or missing, must add NVIDIA runtime configuration before device plugin will work.
+| Prerequisite | Check | Notes |
+|---|---|---|
+| NVIDIA drivers | `nvidia-smi` shows 2x RTX PRO 6000 | Driver 580.126.09 |
+| nvidia-ctk | `nvidia-ctk --version` | v1.19.0 |
+| Docker service | `systemctl is-active docker` | Running |
+| k3s | `systemctl is-active k3s` | Running |
+| kubectl | `kubectl cluster-info` | k3s-bundled v1.34.6 |
+| Helm | `helm version` | v3.20.1 |
+| containerd NVIDIA runtime | `sudo grep nvidia /var/lib/rancher/k3s/agent/etc/containerd/config.toml` | Already configured by nvidia-ctk |
 
 ---
 
 ## containerd Configuration
 
-### Option A: k3s Drop-in Config (Recommended)
-
-k3s manages `/var/lib/rancher/k3s/agent/etc/containerd/config.toml` directly, so use a drop-in config:
-
-```bash
-# Create drop-in directory
-sudo mkdir -p /var/lib/rancher/k3s/agent/etc/containerd/
-sudo nano /var/lib/rancher/k3s/agent/etc/containerd/nvidia-runtime.toml
-```
-
-**Add NVIDIA runtime configuration** (content TBD — research required):
+k3s on this machine uses containerd 2.2.2, which uses the **v2 CRI plugin path**.  
+nvidia-ctk has already written the runtime config into config.toml:
 
 ```toml
-[plugins."io.containerd.runtime.v1.linux".runtimes.nvidia]
-runtime_type = "io.containerd.runc.v2"
-runtime_engine = ""
-runtime_root = ""
-[plugins."io.containerd.runtime.v1.linux".runtimes.nvidia.options]
-BinaryName = ""
-ContainerdPath = ""
-Debug = false
-Experimental = false
-NoNewKeyring = false
-OomScoreAdj = -999
-Privileged = true
-ReadOnly = false
-SystemdCgroup = false
+[plugins.'io.containerd.cri.v1.runtime'.containerd.runtimes.'nvidia']
+  runtime_type = "io.containerd.runc.v2"
+[plugins.'io.containerd.cri.v1.runtime'.containerd.runtimes.'nvidia'.options]
+  BinaryName = "/usr/bin/nvidia-container-runtime"
 ```
 
-Then restart k3s:
+> **Important**: The plugin path is `io.containerd.cri.v1.runtime` — NOT the old `io.containerd.runtime.v1.linux` or `io.containerd.grpc.v1.cri`. k3s + containerd 2.x uses this path. The drop-in file in `manifests/containerd-nvidia-runtime.toml` is a reference but is not applied — nvidia-ctk writes directly to config.toml.
+
+The install script checks for this with `sudo grep` (config.toml is root-owned).
+
+---
+
+## Node Labeling Requirement
+
+The v0.17.1 Helm chart sets a `nodeAffinity` that requires **one of**:
+
+- `feature.node.kubernetes.io/pci-10de.present: "true"` — set by Node Feature Discovery (NFD)
+- `feature.node.kubernetes.io/cpu-model.vendor_id: NVIDIA` — set by NFD
+- `nvidia.com/gpu.present: "true"` — set manually or by GPU Operator
+
+NFD is **not installed** in this cluster. `install.sh` sets the label manually:
 
 ```bash
-sudo systemctl restart k3s
+kubectl label node melody-beast nvidia.com/gpu.present=true --overwrite
 ```
 
-### Option B: k3s Environment Variable
-
-Set `ENV` in `/etc/systemd/system/k3s.service.d/env.conf`:
-
-```bash
-K3S_CONTAINERD_CONFIG_PATH=/etc/containerd/config.toml
-```
-
-Then create full containerd config with NVIDIA runtime (more complex, overrides k3s defaults).
-
-### Option C: Verify nvidia-ctk Already Configured containerd
-
-```bash
-# nvidia-ctk may have already configured containerd during GPU Monitoring setup
-nvidia-ctk runtime configure --runtime=containerd
-# Check if this was already done
-```
+Without this label, `desiredNumberScheduled: 0` — the DaemonSet creates zero pods and `helm upgrade --install --wait` returns success vacuously (0/0 = ready). This is silent and hard to diagnose without checking the DaemonSet directly.
 
 ---
 
 ## Deployment
 
-### 1. Deploy NVIDIA Device Plugin
-
-**Option A: Helm Chart (Recommended)**
+### One-shot install
 
 ```bash
 cd ~/src/home_infra/k8s-nvidia-device-plugin
-
-helm repo add nvdp https://nvidia.github.io/k8s-device-plugin
-helm repo update
-
-helm install nvidia-device-plugin nvdp/nvidia-device-plugin \
-  --namespace kube-system \
-  --set failOnInitError=false \
-  --set config.detect.deviceListStrategy=envvar \
-  --version 0.14.5
+sudo ./setup-permissions.sh   # one-time: sudoers + Claude Code settings
+./install.sh 2>&1 | tee install.log
 ```
 
-**Option B: Manifest Directly**
+### What install.sh does
 
-```bash
-kubectl create -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.14.5/nvidia-device-plugin.yml
-```
+1. Checks prerequisites (nvidia-smi, nvidia-ctk, docker, k3s, kubectl, helm)
+2. Checks containerd config has nvidia (uses `sudo grep` — config.toml is root-owned)
+3. Labels the node `nvidia.com/gpu.present=true`
+4. Applies `manifests/nvidia-runtimeclass.yaml` (RuntimeClass `nvidia`)
+5. `helm upgrade --install` with `--wait --timeout 120s`
+6. Validates pods ready + node allocatable GPUs == 2
+7. Smoke tests a GPU pod
+8. Runs full `test.sh`
 
-**Why `failOnInitError=false`**: Home lab nodes may have race conditions between driver init and plugin startup on boot. Allows plugin to retry instead of crash-looping.
+### Key Helm values (`manifests/nvidia-device-plugin-values.yaml`)
 
-### 2. Verify Installation
+```yaml
+image:
+  repository: "nvcr.io/nvidia/k8s-device-plugin"   # NOT docker.io — moved to NGC
+  tag: "v0.17.1"
+  pullPolicy: "IfNotPresent"
 
-```bash
-# Check device plugin pods are running
-kubectl get pods -n kube-system | grep nvidia-device-plugin
-
-# Verify node has GPU allocatable resources
-kubectl describe node melody-beast | grep -A10 Allocatable
-# Should show: nvidia.com/gpu: 2
-
-# Check device plugin logs
-kubectl logs -n kube-system -l app=nvidia-device-plugin --tail 20
+failOnInitError: false      # allows retry on boot race conditions
+runtimeClassName: "nvidia"  # device plugin pods use the nvidia OCI runtime
 ```
 
 ---
 
 ## Validation
 
-### 1. Smoke Test: Run GPU Pod
+### Run full test suite
 
 ```bash
-# Deploy a test container that uses NVIDIA CUDA
-kubectl run gpu-test \
-  --namespace default \
-  --image=nvidia/cuda:12.0-base-ubuntu22.04 \
-  --restart=Never \
-  --resources=limits=nvidia.com/gpu=1 \
-  -- nvidia-smi
-
-# Wait for pod to complete
-kubectl wait --for=condition=complete pod/gpu-test --timeout=120s
-
-# Check output
-kubectl logs gpu-test
-# Should show nvidia-smi output with one GPU visible
+cd ~/src/home_infra/k8s-nvidia-device-plugin
+./test.sh
 ```
 
-### 2. Test GPU Isolation
+Expected output (23 tests including vLLM, 0 failures):
+
+```
+  ── Prerequisites ──
+    ✓ nvidia-smi available and functional
+    ✓ GPU count: 2 (expected 2)
+    ✓ nvidia-ctk available
+    ✓ Docker active
+    ✓ k3s active
+    ✓ Kubernetes reachable
+    ✓ Helm available
+    ✓ containerd configured with NVIDIA runtime
+
+  ── Device Plugin ──
+    ✓ Helm release 'nvidia-device-plugin' installed
+    ✓ RuntimeClass 'nvidia' exists
+    ✓ Device plugin pods ready: 1/1
+    ✓ Device plugin logs clean
+    ✓ Device plugin reports successful GPU registration
+    ✓ Node allocatable GPUs: 2 (expected 2)
+
+  ── GPU Scheduling ──
+    ✓ GPU pod scheduled and completed
+    ✓ GPU detected in container
+    ✓ nvidia-smi works in container
+
+  ── GPU Isolation ──
+    ✓ Both GPU pods completed
+    ✓ Each pod got a distinct GPU (different UUIDs confirmed)
+
+  ── Integration with GPU Monitoring ──
+    ✓ DCGM exporter still running
+    ✓ DCGM metrics endpoint responding
+
+  ── vLLM Inference ──
+    ✓ vLLM server ready (model loaded)
+    ✓ vLLM inference returned a completion ("text":" blue.\nI'm not sure if")
+
+  Results: 23 passed, 0 failed, 0 warnings
+```
+
+Skip vLLM (e.g. if image not yet pulled and you need a fast check):
 
 ```bash
-# Deploy two pods, each requesting one GPU
-kubectl run gpu-test-0 --image=nvidia/cuda:12.0-base-ubuntu22.04 \
-  --restart=Never --resources=limits=nvidia.com/gpu=1 -- nvidia-smi -L &
-kubectl run gpu-test-1 --image=nvidia/cuda:12.0-base-ubuntu22.04 \
-  --restart=Never --resources=limits=nvidia.com/gpu=1 -- nvidia-smi -L
-
-# Each pod should see a different GPU
-kubectl logs gpu-test-0
-kubectl logs gpu-test-1
+./test.sh --skip-vllm
 ```
 
-### 3. Test GPU Workload (Optional)
+Override the model (default: `facebook/opt-125m`):
 
 ```bash
-# Run a simple CUDA benchmark
-kubectl run cuda-benchmark \
-  --image=nvidia/samples:cupti-sample-banding-cuda12.0.0-ubuntu22.04 \
-  --restart=Never \
-  --resources=limits=nvidia.com/gpu=1
+./test.sh --vllm-model Qwen/Qwen2.5-0.5B
 ```
+
+**What the vLLM test does:**
+
+1. Deploys `vllm/vllm-openai:latest` as a pod with `runtimeClassName: nvidia` and `nvidia.com/gpu: 1`; `--max-model-len 512` and `--gpu-memory-utilization 0.3` keep memory footprint minimal (other processes like DCGM consume ~41 GiB on GPU 0; default utilization of 0.9 would try to claim 85 GiB and fail)
+2. Waits up to 10 min for pod to reach `Running` (covers image pull on first run)
+3. Polls pod logs for `Application startup complete` — the definitive signal that the model is loaded and the server is accepting requests (up to 5 min)
+4. Runs `POST /v1/completions` via `kubectl exec` inside the pod (avoids port-forward, which dies immediately if nothing is listening on the port yet)
+5. Passes if the response contains `"text"`; prints the generated tokens
+6. Cleans up the pod on exit regardless of outcome
+
+> **Why `kubectl exec` instead of port-forward**: `kubectl port-forward` connects once at startup — if vLLM hasn't bound the port yet it exits immediately and doesn't retry. `kubectl exec` runs in the container's own network namespace where `localhost:8000` is always correct once the server is up.
+
+> **Why `facebook/opt-125m`**: 125 M parameters, ~250 MB download, loads in seconds on GPU. Small enough to be a reliable smoke test without burning time or VRAM.
+
+### GPU pod spec — required fields
+
+Test pods and any GPU workload must specify **both**:
+
+```bash
+# kubectl run (for quick tests)
+kubectl run gpu-test --namespace default \
+  --image=nvidia/cuda:12.8.1-base-ubuntu22.04 --restart=Never \
+  --overrides='{"spec":{"runtimeClassName":"nvidia","containers":[{"name":"gpu-test","image":"nvidia/cuda:12.8.1-base-ubuntu22.04","command":["nvidia-smi"],"resources":{"limits":{"nvidia.com/gpu":"1"}}}]}}'
+```
+
+```yaml
+# Pod/Deployment manifest
+spec:
+  runtimeClassName: nvidia          # must be set — uses nvidia-container-runtime
+  containers:
+  - name: my-gpu-app
+    image: ...
+    resources:
+      limits:
+        nvidia.com/gpu: "1"         # allocates one GPU
+```
+
+> **Why runtimeClassName is required**: containerd has nvidia configured as a *named* runtime, not the default. Without `runtimeClassName: nvidia`, the pod uses plain runc, which does not inject GPU devices or nvidia-smi from the host. The `base` CUDA image does not include nvidia-smi — it is injected by nvidia-container-runtime from the host driver.
+
+> **Why kubectl `--limits` / `--resources` flags don't work**: kubectl v1.34.6 (k3s-bundled) has removed these flags from `kubectl run`. Use `--overrides` with the full container spec JSON instead.
 
 ---
 
 ## Teardown
 
-### Remove Device Plugin
-
 ```bash
-# Via Helm
-helm uninstall nvidia-device-plugin -n kube-system
+cd ~/src/home_infra/k8s-nvidia-device-plugin
+./uninstall.sh
 
-# Via manifest
-kubectl delete -f https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.14.5/nvidia-device-plugin.yml
+# To also revert containerd config:
+./uninstall.sh --revert-containerd
 ```
 
-### Revert containerd Changes (if applied)
-
-```bash
-# If drop-in config was added
-sudo rm /var/lib/rancher/k3s/agent/etc/containerd/nvidia-runtime.toml
-sudo systemctl restart k3s
-```
+Teardown removes: Helm release, RuntimeClass, device plugin pods.  
+Does NOT remove: node label `nvidia.com/gpu.present=true` (hardware fact, safe to keep), containerd config (unless `--revert-containerd`).
 
 ---
 
-## Integration with GPU Monitoring
+## Diagnosis
 
-**After device plugin is working**, consider migrating DCGM exporter to a K8s-native approach:
-
-### Current (Host-Based)
-
-```
-/etc/systemd/system/dcgm-exporter.service
-  └─ docker run --runtime=nvidia --gpus all
+```bash
+./diag.sh 2>&1
 ```
 
-### Future (K8s-Based)
-
-```yaml
-apiVersion: v1
-kind: Pod
-metadata:
-  name: dcgm-exporter
-spec:
-  containers:
-  - name: dcgm-exporter
-    image: nvcr.io/nvidia/k8s/dcgm-exporter:4.2.3-4.1.3-ubuntu22.04
-    resources:
-      limits:
-        nvidia.com/gpu: 1  # <-- Native GPU scheduling
-```
-
-**Benefits**:
-- Single deployment model (all in K8s)
-- Better integration with K8s lifecycle management
-- Can deploy one DCGM exporter per GPU for granular metrics
-
----
-
-## Use Cases
-
-### 1. ML Training Workloads
-
-```yaml
-apiVersion: v1
-kind: Pod
-metadata:
-  name: pytorch-training
-spec:
-  containers:
-  - name: trainer
-    image: pytorch/pytorch:2.0.0-cuda11.7-cudnn8-runtime
-    resources:
-      limits:
-        nvidia.com/gpu: 1
-    command: ["python", "training_script.py"]
-```
-
-### 2. GPU Rendering (Blender, etc.)
-
-```yaml
-apiVersion: v1
-kind: Pod
-metadata:
-  name: blender-render
-spec:
-  containers:
-  - name: blender
-    image: blenderfoundation/blender:latest
-    resources:
-      limits:
-        nvidia.com/gpu: 1
-```
-
-### 3. AI Inference Server
-
-```yaml
-apiVersion: v1
-kind: Pod
-metadata:
-  name: tensorrt-inference
-spec:
-  containers:
-  - name: inference
-    image: nvcr.io/nvidia/tensorrt:23.04-py3
-    resources:
-      limits:
-        nvidia.com/gpu: 1
-```
+Captures: driver state, services, containerd config, k3s cluster, RuntimeClass, Helm release, device plugin pods + logs (last 30 lines), node GPU capacity/allocatable, recent warning events, any leftover gpu-test pods.
 
 ---
 
 ## Troubleshooting
 
-### Device Plugin Pod CrashLoopBackOff
+### DaemonSet shows `desiredNumberScheduled: 0`
 
 ```bash
-# Check logs
-kubectl logs -n kube-system -l app=nvidia-device-plugin --previous
-
-# Common causes:
-# - containerd not configured with NVIDIA runtime
-# - NVIDIA drivers not loaded
-# - GPU not visible to containerd
+kubectl get daemonset nvidia-device-plugin -n kube-system
+# status.desiredNumberScheduled: 0
 ```
 
-### No `nvidia.com/gpu` in Node Allocatable
+**Cause**: Node missing `nvidia.com/gpu.present=true` label — chart v0.17.1 requires it (or NFD labels).  
+**Fix**: `kubectl label node melody-beast nvidia.com/gpu.present=true --overwrite`
 
-```bash
-# Verify device plugin is running
-kubectl get pods -n kube-system -o wide | grep nvidia-device-plugin
+### `ErrImagePull` on device plugin pod
 
-# Check node labels
-kubectl describe node melody-beast | grep -A20 "Capacity"
-kubectl describe node melody-beast | grep -A20 "Allocatable"
-
-# Device plugin should advertise nvidia.com/gpu: 2
+```
+Failed to pull image "docker.io/nvidia/k8s-device-plugin:v0.17.1": not found
 ```
 
-### GPU Pod Stays in Pending
+**Cause**: NVIDIA moved to `nvcr.io` — `docker.io/nvidia/k8s-device-plugin` doesn't have v0.17.1.  
+**Fix**: `image.repository: "nvcr.io/nvidia/k8s-device-plugin"` in values.yaml.
+
+### GPU pod `nvidia-smi: command not found`
+
+```
+OCI runtime create failed: exec: "nvidia-smi": executable file not found in $PATH
+```
+
+**Cause**: Pod using default runc instead of nvidia-container-runtime. CUDA `base` image doesn't include nvidia-smi — it must be injected by the nvidia OCI runtime from the host.  
+**Fix**: Add `runtimeClassName: nvidia` to the pod spec.
+
+### GPU pod stays `Pending`
 
 ```bash
-# Check events
 kubectl describe pod <gpu-pod>
-
-# Likely causes:
-# - Insufficient nvidia.com/gpu resource (all GPUs in use)
-# - Node taints/not ready
-# - Device plugin not advertising GPUs
+# Events: 0/1 nodes have sufficient nvidia.com/gpu
 ```
 
-### nvidia-smi Shows No GPUs Inside Container
+**Cause A**: Device plugin not running — check `kubectl get pods -n kube-system -l app.kubernetes.io/name=nvidia-device-plugin`.  
+**Cause B**: Race condition — plugin just started, `nvidia.com/gpu` not yet in allocatable. Wait 10–15s.  
+**Fix**: Verify `kubectl describe node melody-beast | grep nvidia.com/gpu` shows `2`.
 
-```bash
-# Check container runtime
-kubectl get pod <gpu-pod> -o jsonpath='{.spec.runtimeClassName}'
-# Should be: nvidia (if using runtime class)
+### `configure_containerd` shows "Could not auto-configure"
 
-# Verify container can access /dev/nvidia*
-kubectl exec <gpu-pod> -- ls -la /dev/nvidia*
-# Should show /dev/nvidia0, /dev/nvidia1, etc.
+**Cause**: `nvidia-ctk runtime configure` needs write access to config.toml (root-owned). But config.toml likely already has nvidia configured from a prior run.  
+**Check**: `sudo grep nvidia /var/lib/rancher/k3s/agent/etc/containerd/config.toml`  
+**Action**: If nvidia is present, pass `--skip-containerd-config` to install.sh. The warning is benign.
 
-# If missing, containerd NVIDIA runtime not configured correctly
+### `grep -c` syntax error in scripts
+
 ```
+[[: 0\n0: syntax error in expression
+```
+
+**Cause**: `grep -c` exits 1 with 0 matches → `|| echo "0"` fires → variable gets `"0\n0"`.  
+**Fix**: Use `{ grep -c ... || true; }` with `${var:-0}`.
+
+### Device plugin pods not ready immediately after `helm --wait`
+
+```
+✘ Device plugin pods not ready (0/1)
+```
+
+**Cause**: `helm upgrade --install --wait` returns once the DaemonSet object is created, but the pod may still be scheduling or starting. `validate_device_plugin()` checking pod readiness immediately after can see 0/1 before the pod is Ready.  
+**Fix**: Both `install.sh` and `test.sh` now poll pod readiness with a 60-second retry loop (5-second intervals) rather than a one-shot check.
+
+### `nvidia.com/gpu` not in node allocatable immediately after pod becomes Ready
+
+```
+✗ Node doesn't advertise nvidia.com/gpu resources — device plugin may not have discovered GPUs
+```
+
+**Cause**: The device plugin registers with kubelet via gRPC *after* the pod becomes Ready. Kubelet then updates node Allocatable resources — this propagation takes 10–30 seconds. One-shot checks during this window always fail.  
+**Fix**: Both `install.sh` and `test.sh` now poll `kubectl describe node` for `nvidia.com/gpu` with a 60-second retry loop before failing.
+
+### vLLM `Engine core initialization failed` — GPU memory
+
+```
+RuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}
+ValueError: Free memory on device cuda:0 (53.76/94.97 GiB) is less than desired GPU memory utilization (0.9, 85.47 GiB)
+```
+
+**Cause**: vLLM defaults to `--gpu-memory-utilization 0.9`, reserving 90% of GPU VRAM for the KV cache. On this machine, DCGM and other processes consume ~41 GiB on GPU 0, leaving ~54 GiB free. 90% of 97 GiB (~85 GiB) exceeds available memory.  
+**Fix**: The vLLM test pod args include `--gpu-memory-utilization 0.3`, reserving only ~28 GiB — well within free memory and more than enough for `facebook/opt-125m` (0.24 GiB model weights).
 
 ---
 
-## Testing & Validation Plan
+## Versions
 
-Following the same rigorous testing as other homelab projects:
-
-### Test Categories
-
-| Category | Tests | What's Validated |
-|----------|-------|-----------------|
-| **Prerequisites** | 4 | nvidia-smi works, nvidia-ctk installed, containerd config, k3s cluster |
-| **Device Plugin** | 4 | DaemonSet deployed, pods ready, node allocatable shows GPUs, no errors in logs |
-| **GPU Scheduling** | 4 | Pod with GPU request schedules, nvidia-smi works inside pod, GPU isolation between pods, cleanup |
-| **Integration** | 2 | DCGM exporter still works, metrics flow to Prometheus |
-| **Workload Tests** | 2 | CUDA sample runs, multi-GPU scheduling |
-
-**Total**: 16 tests minimum
-
-### Validation Commands
-
-```bash
-./test.sh                    # Run all validation tests
-./test.sh --quick            # Run prerequisite + device plugin tests only
-./test.sh --smoke-test       # Test single GPU pod deployment
-```
+| Component | Version | Notes |
+|---|---|---|
+| Helm chart | `0.17.1` | Latest stable as of 2026-04-13 |
+| Device plugin image | `nvcr.io/nvidia/k8s-device-plugin:v0.17.1` | nvcr.io (not docker.io) |
+| CUDA test image | `nvidia/cuda:12.8.1-base-ubuntu22.04` | Latest 12.x patch; Blackwell requires 12.6+ |
+| nvidia-ctk | `1.19.0` | Installed on host |
+| NVIDIA driver | `580.126.09` | Installed on host |
 
 ---
 
@@ -455,29 +360,31 @@ Following the same rigorous testing as other homelab projects:
 
 ```
 home_infra/k8s-nvidia-device-plugin/
-├── install.sh                      # Deploy device plugin + configure containerd
-│                                   #   --skip-containerd-config (if already configured)
-│                                   #   --helm-chart-version (default: 0.14.5)
-├── uninstall.sh                    # Remove device plugin (keeps containerd config)
-│                                   #   --revert-containerd (also remove containerd changes)
-├── test.sh                         # 16+ validation tests
-│                                   #   --quick (prerequisites only)
-│                                   #   --smoke-test (single GPU pod test)
-├── manifests/
-│   ├── nvidia-device-plugin-values.yaml  # Helm values customization
-│   └── containerd-nvidia-runtime.toml    # containerd drop-in config
-└── examples/
-    ├── gpu-test-pod.yaml             # Simple GPU test pod
-    ├── pytorch-training.yaml         # ML training example
-    └── tensorrt-inference.yaml       # AI inference example
+├── install.sh                      # Full install: containerd check, node label, RuntimeClass, Helm, smoke test
+│                                   #   --skip-containerd-config  (skip containerd check)
+│                                   #   --helm-chart-version 0.17.1
+├── uninstall.sh                    # Removes Helm release + RuntimeClass
+│                                   #   --revert-containerd  (also removes containerd nvidia config + restarts k3s)
+├── test.sh                         # 23 validation tests across 6 sections (vLLM included by default)
+│                                   #   --smoke-test        (GPU scheduling only, skip prerequisites + device plugin)
+│                                   #   --gpu-count N       (default 2)
+│                                   #   --skip-vllm         (skip vLLM inference test)
+│                                   #   --vllm-model MODEL  (default: facebook/opt-125m)
+├── diag.sh                         # Read-only snapshot of all state — share output for debugging
+├── setup-permissions.sh            # One-time: sudoers drop-in + Claude Code settings.local.json
+└── manifests/
+    ├── nvidia-device-plugin-values.yaml  # Helm values (image, runtimeClassName, resources)
+    ├── nvidia-runtimeclass.yaml          # RuntimeClass 'nvidia' → handler: nvidia
+    └── containerd-nvidia-runtime.toml   # Reference config (not applied — nvidia-ctk writes config.toml directly)
 ```
 
 ---
 
 ## See Also
 
-- [[GPU Monitoring]] — DCGM exporter for GPU metrics (can coexist or be migrated)
-- [[Metrics]] — Prometheus + Grafana stack for monitoring
-- [[Logging]] — Centralized logging for GPU workloads
-- [NVIDIA Device Plugin Documentation](https://github.com/NVIDIA/k8s-device-plugin)
-- [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html)
+- [[GPU Monitoring]] — DCGM exporter for GPU metrics
+- [[Metrics]] — Prometheus + Grafana stack
+- [[Logging]] — Centralized logging
+- [[Teardown Reinstall Validation]] — Test cycle results
+- [NVIDIA Device Plugin GitHub](https://github.com/NVIDIA/k8s-device-plugin)
+- [NVIDIA NGC: k8s-device-plugin](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/k8s-device-plugin)

@@ -13,11 +13,48 @@ cd ~/src/home_infra/metrics && ./install.sh
 # GPU monitoring stack (dcgm-exporter + Alloy patch + Grafana dashboard)
 cd ~/src/home_infra/metrics/gpu && ./install.sh
 
+# NVIDIA Device Plugin (GPU scheduling in k8s)
+cd ~/src/home_infra/k8s-nvidia-device-plugin && ./install.sh
+
 # Logging stack (Loki + Alloy + Grafana)
 cd ~/src/home_infra/logging && ./install.sh
 
 # Tailscale services (grafana, loki, prometheus)
 cd ~/src/home_infra/tailscale && sudo ./apply.sh
+```
+
+---
+
+## NVIDIA Device Plugin
+
+```bash
+# Install (containerd check, node label, RuntimeClass, Helm, smoke test, full test suite)
+cd ~/src/home_infra/k8s-nvidia-device-plugin
+sudo ./setup-permissions.sh   # one-time: sudoers drop-in + Claude Code settings
+./install.sh 2>&1 | tee install.log
+
+# Run full test suite (23 tests, vLLM included by default)
+./test.sh
+
+# Skip vLLM (faster, if image not yet pulled)
+./test.sh --skip-vllm
+
+# Override vLLM model
+./test.sh --vllm-model Qwen/Qwen2.5-0.5B
+
+# Diagnostic snapshot (read-only, safe to share)
+./diag.sh 2>&1
+
+# Uninstall (keeps containerd config + node label)
+./uninstall.sh
+
+# Uninstall and revert containerd config
+./uninstall.sh --revert-containerd
+
+# Quick GPU pod (requires device plugin installed)
+kubectl run gpu-test --namespace default \
+  --image=nvidia/cuda:12.8.1-base-ubuntu22.04 --restart=Never \
+  --overrides='{"spec":{"runtimeClassName":"nvidia","containers":[{"name":"gpu-test","image":"nvidia/cuda:12.8.1-base-ubuntu22.04","command":["nvidia-smi"],"resources":{"limits":{"nvidia.com/gpu":"1"}}}]}}'
 ```
 
 ---
