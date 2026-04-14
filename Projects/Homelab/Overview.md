@@ -5,11 +5,13 @@ A home lab covering infrastructure, services, observability, networking, and aut
 
 ## Services
 - **Kubernetes (k3s)** — Single-node k3s cluster running on `melody-beast` (10.0.0.7) ✅
+- **Redis** — In-cluster key/value store, 2GB memory, AOF+RDB persistence, allkeys-lru eviction ✅ — see [[Redis]]
 
 ## Observability
 - **Logging** — Loki + Grafana Alloy + Grafana, deployed to k3s ✅ **Complete** — 34 automated tests, teardown/reinstall validated (6 cycles)
 - **Metrics** — Prometheus + Alloy + Grafana ✅ **Complete** — 37+ automated tests, teardown/reinstall validated — see [[Metrics]]
 - **GPU Monitoring** — DCGM Exporter + Grafana ✅ **Complete** — 38 automated tests, dashboard uid `gpu-overview`, 2× RTX PRO 6000 Blackwell — see [[GPU Monitoring]]
+- **Redis Metrics** — redis_exporter + Alloy scraping + Grafana dashboard uid `redis-overview` ✅ **Complete** — 22 automated tests, 3 teardown cycles — see [[Redis Metrics]]
 - **Alerting** — Alertmanager *(planned)*
 - **Network Monitoring** — Uptime Kuma / ntopng *(planned)*
 - **Tracing** — Tempo / Jaeger *(planned)*
@@ -22,6 +24,8 @@ A home lab covering infrastructure, services, observability, networking, and aut
 - [[Teardown Reinstall Validation|Teardown / Reinstall Validation]] — Evidence report: 3 clean cycles, 34/34 tests, bugs fixed
 - [[Metrics|Metrics (Prometheus + Alloy + Grafana)]] — Metrics collection architecture, deploy plan, and test suite
 - [[GPU Monitoring|GPU Monitoring (DCGM + Grafana)]] — NVIDIA RTX PRO 6000 Blackwell GPU metrics, dashboard, and test suite
+- [[Redis|Redis]] — In-cluster Redis: connection strings, auth, application integration, and deploy/teardown
+- [[Redis Metrics|Redis Metrics]] — redis_exporter, Alloy scraping, Grafana dashboard `redis-overview`
 
 ## Possible Automation Gaps
 
@@ -88,6 +92,8 @@ A collection of browser-playable classic games hosted as a GitHub repo.
 - [ ] Install Alloy agent on remote LAN devices
 - [x] Set up metrics stack (Prometheus + Grafana) — see [[Metrics]]
 - [x] Build GPU metrics dashboard (DCGM Exporter + Grafana) — see [[GPU Monitoring]]
+- [x] Deploy Redis (in-cluster, 2GB, AOF persistence) — see [[Redis]]
+- [x] Redis metrics + Grafana dashboard — see [[Redis Metrics]]
 - [ ] Set up alerting
 - [ ] Set up network monitoring
 - [ ] Build k8s cluster / node overview Grafana dashboards
