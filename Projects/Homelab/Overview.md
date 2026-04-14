@@ -6,6 +6,7 @@ A home lab covering infrastructure, services, observability, networking, and aut
 ## Services
 - **Kubernetes (k3s)** — Single-node k3s cluster running on `melody-beast` (10.0.0.7) ✅
 - **Redis** — In-cluster key/value store, 2GB memory, AOF+RDB persistence, allkeys-lru eviction ✅ — see [[Redis]]
+- **PostgreSQL** — In-cluster relational database, standalone primary, 10Gi persistence, `homelab` database ✅ — see [[Postgres]]
 
 ## Observability
 - **Logging** — Loki + Grafana Alloy + Grafana, deployed to k3s ✅ **Complete** — 34 automated tests, teardown/reinstall validated (6 cycles)
@@ -26,6 +27,7 @@ A home lab covering infrastructure, services, observability, networking, and aut
 - [[GPU Monitoring|GPU Monitoring (DCGM + Grafana)]] — NVIDIA RTX PRO 6000 Blackwell GPU metrics, dashboard, and test suite
 - [[Redis|Redis]] — In-cluster Redis: connection strings, auth, application integration, and deploy/teardown
 - [[Redis Metrics|Redis Metrics]] — redis_exporter, Alloy scraping, Grafana dashboard `redis-overview`
+- [[Postgres|PostgreSQL]] — In-cluster Postgres: connection strings, auth, application integration, and deploy/teardown
 
 ## Possible Automation Gaps
 
