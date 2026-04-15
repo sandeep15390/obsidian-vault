@@ -7,6 +7,7 @@ A home lab covering infrastructure, services, observability, networking, and aut
 - **Kubernetes (k3s)** — Single-node k3s cluster running on `melody-beast` (10.0.0.7) ✅
 - **Redis** — In-cluster key/value store, 2GB memory, AOF+RDB persistence, allkeys-lru eviction ✅ — see [[Redis]]
 - **PostgreSQL** — In-cluster relational database, standalone primary, 10Gi persistence, `homelab` database ✅ — see [[Postgres]]
+- **PostgreSQL Metrics** — postgres_exporter + Prometheus + dual Grafana dashboards (metrics + logs) ✅ — see [[Postgres Metrics]]
 
 ## Observability
 - **Logging** — Loki + Grafana Alloy + Grafana, deployed to k3s ✅ **Complete** — 34 automated tests, teardown/reinstall validated (6 cycles)
