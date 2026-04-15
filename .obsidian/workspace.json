@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Projects/Homelab/Overview.md",
+                "file": "Projects/Homelab/Postgres.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Overview"
+              "title": "Postgres"
             }
           }
         ],
@@ -93,7 +93,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 597.5
   },
   "right": {
     "id": "147222e25a97fa88",
@@ -210,26 +210,28 @@
   },
   "active": "c0a0e7b09aedba44",
   "lastOpenFiles": [
-    "Projects/Homelab/Redis Metrics.md.tmp.1730552.1776188552809",
-    "Projects/Homelab/Redis.md.tmp.1730552.1776188546672",
-    "Projects/Homelab/Redis.md.tmp.1730552.1776188527889",
-    "Projects/Homelab/Redis.md.tmp.1730552.1776188522619",
-    "Projects/Homelab/Redis.md.tmp.1730552.1776188512403",
-    "Projects/Homelab/Overview.md.tmp.1730552.1776188509154",
-    "Projects/Homelab/Overview.md.tmp.1730552.1776188505697",
-    "Projects/Homelab/Overview.md.tmp.1730552.1776188501394",
-    "Projects/Homelab/Overview.md.tmp.1730552.1776188496270",
-    "Projects/Homelab/Redis Metrics.md.tmp.1273140.1776132987616",
-    "Projects/Homelab/Redis Metrics.md.tmp.1273140.1776132968742",
+    "Projects/Homelab/Teardown Reinstall Validation - Postgres.md",
+    "Projects/Homelab/Teardown Reinstall Validation - NVIDIA Device Plugin.md",
+    "Projects/Homelab/Postgres Metrics.md",
+    "Projects/Homelab/Postgres.md",
+    "Projects/Homelab/Overview.md",
+    "Projects/Homelab/Overview.md.tmp.1730552.1776216727495",
+    "Projects/Homelab/Postgres Metrics.md.tmp.1730552.1776216723401",
+    "Projects/Homelab/Postgres Metrics.md.tmp.1730552.1776216719109",
+    "Projects/Homelab/Teardown Reinstall Validation - Postgres.md.tmp.1730552.1776216710745",
+    "Projects/Homelab/Teardown Reinstall Validation - Postgres.md.tmp.1730552.1776216688799",
+    "Projects/Homelab/Teardown Reinstall Validation - Postgres.md.tmp.1730552.1776216680134",
+    "Projects/Homelab/Teardown Reinstall Validation - Postgres.md.tmp.1730552.1776216670864",
+    "Projects/Homelab/Overview.md.tmp.1730552.1776214022283",
+    "Projects/Homelab/Postgres Metrics.md.tmp.1730552.1776214017440",
+    "Projects/Homelab/Overview.md.tmp.1730552.1776192062061",
     "Projects/Homelab/Redis Metrics.md",
     "Projects/Homelab/Redis.md",
     "Projects/Homelab/Teardown Reinstall Validation.md",
-    "Projects/Homelab/Teardown Reinstall Validation - NVIDIA Device Plugin.md",
     "Projects/Homelab/Teardown Reinstall Validation - Metrics.md",
     "Projects/Homelab/Teardown Reinstall Validation - Logging.md",
     "Projects/Homelab/NVIDIA Device Plugin.md",
     "Projects/Homelab/Logging.md",
-    "Projects/Homelab/Overview.md",
     "Projects/Homelab/Metrics.md",
     "Projects/Homelab/Commands.md",
     "Projects/Homelab/Kubernetes.md",
@@ -245,9 +247,6 @@
     "Projects/Telugu Teacher/Overview.md",
     "Projects/Market Time Machine/Overview.md",
     "Projects/WhatsApp Telugu-English Translator Bot/Overview.md",
-    "Untitled.canvas",
-    "First Page.md",
-    "Projects/Telugu Teacher Voice Agent.md",
-    "Projects/Market Time Machine.md"
+    "Untitled.canvas"
   ]
 }
