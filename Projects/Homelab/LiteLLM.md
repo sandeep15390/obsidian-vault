@@ -5,14 +5,15 @@
 ## Status
 
 - [x] Deploy stack: `./install.sh`
-- [x] All 42 tests passing (Ollama-only scope)
+- [x] All 44 tests passing (Ollama-only scope, end-to-end chat completion verified)
 - [x] OpenAI-compatible API responds at NodePort 32303 (smoke: `curl /health/readiness`)
-- [x] Ollama backend reachable (`ollama/llama3.2` and `ollama/gemma3` models served)
+- [x] Ollama backend reachable — 9 models served (qwen3-coder-next, qwen3.5:122b/27b/9b, qwq:32b, devstral-small-2:24b, gemma3:27b, gemma4:31b, gpt-oss:120b)
 - [x] Prometheus metrics endpoint `/metrics` returns valid Prometheus format
 - [x] Alloy scrape block `// # BEGIN litellm` patched into `alloy-metrics-config`
 - [x] Grafana dashboard uid `litellm-overview` provisioned
 - [ ] LiteLLM accessible on tailnet via `https://litellm.tailc98a25.ts.net` (manual: `sudo tailscale serve`)
-- [x] Validate teardown/reinstall reproducibility — 3 destructive cycles, 42/42 each
+- [x] Validate teardown/reinstall reproducibility — 1 full destructive cycle (data + namespace + DB schema), 44/44
+- [x] PostgreSQL backend integrated — Prisma schema applied, admin UI enabled for key/team/budget management
 
 ---
 
@@ -29,7 +30,7 @@
 
 > **LiteLLM image:** `ghcr.io/berriai/litellm:main-v1.82.3` — pinned to the stable release tag. Do not use `main-latest` in production; it is a floating tag. The Helm chart image tag defaults to `main-<appVersion>` which resolves to `main-v1.82.3`.
 
-> **No database:** The Helm chart includes an optional Bitnami PostgreSQL sub-chart (`db.deployStandalone: true` by default). This is disabled in our values (`db.deployStandalone: false`, `db.useExisting: false`). LiteLLM operates in stateless mode without a database — request logs and team/key management are not persisted. This is an acceptable tradeoff for a homelab; see Possible Enhancements for the SQLite/Postgres persistence path.
+> **PostgreSQL backend:** LiteLLM uses the existing PostgreSQL instance in the home lab (`postgresql.postgresql.svc.cluster.local:5432/homelab`). The Prisma schema is applied on first deploy via `prisma db push`. This enables the admin UI for managing virtual keys, teams, budgets, and viewing usage analytics. The database contains 30+ LiteLLM tables including `LiteLLM_VerificationToken` (virtual keys), `LiteLLM_TeamTable`, `LiteLLM_UserTable`, `LiteLLM_BudgetTable`, and audit logs.
 
 > **Prometheus metrics:** LiteLLM exposes a built-in `/metrics` endpoint at port 4000 when `callbacks: ["prometheus"]` is set in the proxy config. No separate exporter pod is needed.
 
@@ -88,7 +89,7 @@ graph TD
 ### Data Flow
 
 1. **LiteLLM proxy** starts with `/app/config.yaml` mounted from the `litellm` Helm-managed ConfigMap
-2. `proxy_config.model_list` defines model aliases: `ollama/llama3.2` and `ollama/gemma3` routed to `http://10.0.0.7:11434`
+2. `proxy_config.model_list` defines model aliases — 9 Ollama models all routed to `http://10.0.0.7:11434`
 3. `PROXY_MASTER_KEY` is injected as an environment variable via `envFrom: secretRef: litellm-api-keys` — never embedded in the ConfigMap
 4. In-cluster clients call `litellm.litellm.svc.cluster.local:4000` with `Authorization: Bearer <PROXY_MASTER_KEY>`
 5. External (tailnet) clients call `https://litellm.tailc98a25.ts.net` via Tailscale serve → NodePort 32303 → pod port 4000
@@ -104,14 +105,41 @@ graph TD
 
 ```yaml
 model_list:
-  - model_name: ollama/llama3.2
+  - model_name: qwen3-coder-next
     litellm_params:
-      model: ollama/llama3.2
+      model: ollama/qwen3-coder-next:latest
       api_base: http://10.0.0.7:11434
-
-  - model_name: ollama/gemma3
+  - model_name: qwen3.5:122b
     litellm_params:
-      model: ollama/gemma3
+      model: ollama/qwen3.5:122b-a10b
+      api_base: http://10.0.0.7:11434
+  - model_name: qwen3.5:27b
+    litellm_params:
+      model: ollama/qwen3.5:27b
+      api_base: http://10.0.0.7:11434
+  - model_name: qwen3.5:9b
+    litellm_params:
+      model: ollama/qwen3.5:9b
+      api_base: http://10.0.0.7:11434
+  - model_name: qwq:32b
+    litellm_params:
+      model: ollama/qwq:32b
+      api_base: http://10.0.0.7:11434
+  - model_name: devstral-small-2:24b
+    litellm_params:
+      model: ollama/devstral-small-2:24b
+      api_base: http://10.0.0.7:11434
+  - model_name: gemma3:27b
+    litellm_params:
+      model: ollama/gemma3:27b
+      api_base: http://10.0.0.7:11434
+  - model_name: gemma4:31b
+    litellm_params:
+      model: ollama/gemma4:31b
+      api_base: http://10.0.0.7:11434
+  - model_name: gpt-oss:120b
+    litellm_params:
+      model: ollama/gpt-oss:120b
       api_base: http://10.0.0.7:11434
 
 general_settings:
@@ -130,9 +158,27 @@ litellm_settings:
 
 | Key | Value | Source |
 |---|---|---|
-| `PROXY_MASTER_KEY` | LiteLLM master key (e.g. `sk-homelab-<random>`) | Set by user before install |
+| `PROXY_MASTER_KEY` | LiteLLM master key — see [[Teardown Reinstall Validation - LiteLLM#Credentials Reference]] | Set by user before install |
+| `DATABASE_URL` | PostgreSQL connection string — see [[Teardown Reinstall Validation - LiteLLM#Credentials Reference]] | Set by user before install |
 
-The secret is created by `install.sh` from the `PROXY_MASTER_KEY` environment variable. It is **never** created by the Helm chart. Add extra keys here when adding external API providers.
+The secret is created by `install.sh` from env vars. It is **never** created by the Helm chart. `install.sh` upserts `DATABASE_URL` into existing secrets on reinstall so the key is always present. Both keys are mounted into the pod via `environmentSecrets: [litellm-api-keys]` (Helm `envFrom.secretRef`) — values are not visible in `kubectl get deployment`.
+
+### Rotating the Master Key
+
+```bash
+NEW_KEY=$(openssl rand -hex 20 | sed 's/^/sk-homelab-/')
+kubectl patch secret litellm-api-keys -n litellm \
+  --type merge \
+  -p "{\"data\":{\"PROXY_MASTER_KEY\":\"$(echo -n "${NEW_KEY}" | base64 -w0)\"}}"
+kubectl rollout restart deployment/litellm -n litellm
+kubectl rollout status deployment/litellm -n litellm --timeout=120s
+echo "New key: ${NEW_KEY}"
+# Update [[Teardown Reinstall Validation - LiteLLM#Credentials Reference]] with new key
+```
+
+### Database Connection
+
+`DATABASE_URL` is stored in the `litellm-api-keys` secret and injected via `environmentSecrets`. The Prisma schema (57 tables) is applied automatically on first deploy via `prisma db push`. On reinstall, `prisma db push` without `--accept-data-loss` is used — it will fail explicitly if a schema change would destroy data, rather than silently wiping it.
 
 ### K8s Resource Requests/Limits
 
@@ -170,11 +216,11 @@ service:
 
 resources:
   requests:
-    cpu: 100m
-    memory: 256Mi
-  limits:
-    cpu: 1000m
+    cpu: 200m
     memory: 512Mi
+  limits:
+    cpu: 2000m
+    memory: 2Gi
 
 proxy_config:
   model_list: ...              # inline proxy_config.yaml content
@@ -185,7 +231,7 @@ proxy_config:
       - prometheus
 ```
 
-> The Helm chart renders `proxy_config` from `values.yaml` into a ConfigMap named `litellm` (after the `nameOverride`). The chart also creates a NodePort service when `service.type: NodePort` and `service.nodePort` are set.
+> The Helm chart renders `proxy_config` from `values.yaml` into a ConfigMap named `litellm-config`. The chart creates a NodePort service but does **not** expose the `nodePort` value via values — `install.sh` patches it to 32303 post-deploy via `kubectl patch svc`.
 
 ---
 
@@ -235,6 +281,11 @@ sudo tailscale serve status
 http://litellm.litellm.svc.cluster.local:4000
 ```
 
+**Admin UI (with database backend)**
+```
+http://localhost:32303/ui/
+```
+
 **Get the master key from k8s secret**
 ```bash
 kubectl get secret litellm-api-keys -n litellm \
@@ -279,6 +330,45 @@ response = client.chat.completions.create(
 
 ---
 
+## Admin UI & Key Management
+
+With PostgreSQL backend enabled, you can manage virtual keys, teams, and budgets via the admin UI or CLI.
+
+### Admin UI
+
+**URL:** `http://localhost:32303/ui/`
+
+**Login:** Use your PROXY_MASTER_KEY
+
+Features:
+- Generate virtual keys with budget limits
+- Create teams and manage team membership  
+- View usage analytics and spend tracking
+- Manage users and budgets
+
+See `UI_GUIDE.md` for detailed usage instructions.
+
+### Generate Virtual Keys (CLI)
+
+```bash
+cd ~/src/home_infra/litellm
+
+# Generate a key with alias, budget, and duration
+./generate-key.sh my-app 10 7d
+
+# Output: sk-<random-key> (copy immediately!)
+```
+
+The generated key can be used with any OpenAI-compatible client:
+```python
+client = openai.OpenAI(
+    base_url="http://litellm.litellm.svc.cluster.local:4000",
+    api_key="sk-<the-virtual-key>",
+)
+```
+
+---
+
 ## Deploy / Teardown
 
 ```bash
@@ -302,11 +392,14 @@ cd ~/src/home_infra/litellm
 # Tear down (keep namespace and secret)
 ./uninstall.sh --force
 
-# Tear down completely (removes namespace, secret, NodePort, Alloy block, Grafana dashboard)
+# Tear down completely (removes namespace, secret, Alloy block, Grafana dashboard)
 ./uninstall.sh --delete-namespace --force
+
+# Full wipe including PostgreSQL tables (57 LiteLLM tables — all virtual keys, spend logs, budgets)
+./uninstall.sh --delete-namespace --delete-data --force
 ```
 
-> **No `--delete-data` flag:** LiteLLM is stateless (no PVC) so there is no persistent data to delete. `--delete-namespace` is the destructive flag for full wipes.
+> **`--delete-data`** drops the entire `public` schema in PostgreSQL (`DROP SCHEMA public CASCADE`) which removes all 57 LiteLLM tables. Use this when you want a truly clean reinstall with no leftover keys or spend history. After this, `install.sh` will recreate the schema from scratch via `prisma db push`.
 
 ---
 
@@ -365,7 +458,7 @@ LiteLLM's built-in Prometheus integration is used — no separate exporter pod i
 
 ---
 
-## Test Suite (42 tests)
+## Test Suite (44 tests)
 
 | Category | Count | What's Validated |
 |---|---|---|
@@ -377,21 +470,23 @@ LiteLLM's built-in Prometheus integration is used — no separate exporter pod i
 | **Secret** | 3 | `litellm-api-keys` exists; has `PROXY_MASTER_KEY` key; value non-empty |
 | **ConfigMap** | 2 | `litellm-config` ConfigMap exists; contains `prometheus` callback |
 | **Services** | 3 | Service `litellm` exists; type = NodePort; nodePort = 32303 |
-| **Proxy API** | 7 | `/health/readiness` 200; `/health/liveliness` 200; `/v1/models` ≥2 models; `ollama/llama3.2` present; `ollama/gemma3` present; unauthenticated returns 401 |
-| **Metrics Endpoint** | 4 | `/metrics` returns data; valid Prometheus format (`# HELP` lines); `process_virtual_memory_bytes` present; `litellm_` prefix metrics present |
+| **Proxy API** | 9 | `/health/readiness` 200; `/health/liveliness` 200; `/v1/models` ≥9 models; `qwen3-coder-next` present; `gemma4:31b` present; unauthenticated returns 401; `POST /v1/chat/completions` returns 200; response has non-empty content |
+| **Metrics Endpoint** | 4 | `/metrics` returns data (follows 307 redirect with `-L`); valid Prometheus format (`# HELP` lines); `process_virtual_memory_bytes` present; `litellm_` prefix metrics present |
 | **Alloy ConfigMap** | 2 | `alloy-metrics-config` contains `// # BEGIN litellm`; block has `job_name = "litellm"` |
 | **Prometheus Ingestion** | 3 | Prometheus API reachable; `litellm` job present in label values (Alloy remote_write confirmed); `up{job="litellm"} = 1` |
 | **Tailscale NodePort** | 3 | NodePort 32303 HTTP 200; `svc.nodePort = 32303`; Tailscale check (soft — warns if not configured) |
 | **Grafana Dashboard** | 3 | Dashboard `litellm-overview` exists; UID matches; version set |
 
-> **Total: 42 tests**
+> **Total: 44 tests**
+
+> **Chat completion test note:** Uses `gemma3:27b` (non-thinking model). The qwen3.5 and qwq models are thinking models — with low `max_tokens` budgets they consume all tokens for internal reasoning and return empty `content`. Use non-thinking models (`gemma3:27b`, `gemma4:31b`, `devstral-small-2:24b`) when a text response is required without special handling.
 
 ### Smoke test subset (`--smoke-test` flag, 5 tests)
 
 1. Pod Running + Ready (`1/1`)
 2. `GET /health/readiness` returns HTTP 200 (via port-forward to pod :4000)
 3. `GET /v1/models` returns at least one model (authenticated with master key)
-4. `GET /metrics` contains `litellm_proxy_total_requests_metric`
+4. `GET /metrics` returns valid Prometheus format (`# HELP` lines)
 5. Grafana dashboard uid `litellm-overview` exists
 
 ---
@@ -420,11 +515,11 @@ export PROXY_MASTER_KEY="sk-homelab-..."
 
 **Results:**
 
-| Cycle | Date | Teardown clean | Tests |
-|---|---|---|---|
-| 1 | 2026-04-15 | ✓ | 42/42 |
-| 2 | 2026-04-15 | ✓ | 42/42 |
-| 3 | 2026-04-15 | ✓ | 42/42 |
+| Cycle | Date | Teardown clean | Tests | Notes |
+|---|---|---|---|---|
+| 1 | 2026-04-16 | ✅ | 44/44 | Full destructive: `--delete-namespace --delete-data`; all 57 DB tables dropped and recreated; 11 bugs found and fixed |
+
+> Full bug log: [[Teardown Reinstall Validation - LiteLLM]]
 
 ---
 
