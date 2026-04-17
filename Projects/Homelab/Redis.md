@@ -10,6 +10,10 @@
 - [x] Confirm persistence across pod restart (AOF / RDB survives)
 - [x] Validate teardown/reinstall reproducibility — 3 destructive cycles, 50/50 each — 2026-04-13
 - [x] Redis Metrics (exporter + Grafana dashboard) — see [[Redis Metrics]]
+- [x] Teardown idempotency fixes applied — exit 1 on residue, namespace guards, Grafana password guards — 2026-04-16
+- [x] `--force` flag now required for uninstall (no interactive prompts) — 2026-04-16
+- [x] Teardown idempotency fixes applied — exit 1 on residue, namespace guards, Grafana password guards — 2026-04-16
+- [x] `--force` flag now required for uninstall (no interactive prompts) — 2026-04-16
 
 ---
 
@@ -437,6 +441,28 @@ All tests use `kubectl exec` into the Redis pod — no `redis-cli` on the host i
 | TLS in-transit | Low | `tls.enabled: true` in bitnami values; adds complexity, may not be needed in-cluster |
 | Sentinel / HA mode | Low | Not needed on single-node homelab; revisit if cluster expands |
 | Redis Cluster mode | Low | Would require multiple nodes; overkill for homelab |
+
+---
+
+## Recent Changes (2026-04-16)
+
+### Idempotency Fixes
+
+| Issue | Fix |
+|---|---|
+| `uninstall.sh` residue check exited 0 on failure | Now exits 1 when residue found |
+| Grafana dashboard deletion not verified in residue | Added HTTP 404 check after deletion |
+| `run()` helper used unsafe `eval "$*"` | Replaced with `"$@"` |
+| Alloy namespace missing caused crash | Added namespace existence guard before ConfigMap patch |
+
+### User Experience Improvements
+
+| Change | Impact |
+|---|---|
+| `--force` now required | No more interactive prompts; safe for CI automation |
+| Grafana password retrieval with `|| true` | Uninstall no longer fails if Grafana secret is absent |
+| Dashboard pinned to revision 6 | No more "latest" ambiguity on future upgrades |
+| Diag.sh queries Alloy API | Shows actual scrape status instead of empty Prometheus targets |
 
 ---
 

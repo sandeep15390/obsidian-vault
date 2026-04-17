@@ -12,6 +12,8 @@
 - [x] Alloy component `prometheus.scrape.redis` registered and active
 - [x] Grafana dashboard uid `redis-overview` provisioned — title "Redis Overview"
 - [x] Validate teardown/reinstall reproducibility — 3 destructive cycles, 50/50 each — 2026-04-13
+- [x] Grafana dashboard revision pinned to v6 (was `latest`) — 2026-04-16
+- [x] Diag.sh now queries Alloy component API (not Prometheus targets) — 2026-04-16
 
 ---
 
@@ -361,6 +363,18 @@ cd ~/src/home_infra/redis
 | TLS scraping (if Redis TLS is enabled) | Low | Add `--tls-client-cert-file` / `--tls-client-key-file` args to exporter |
 | Multi-instance support | Low | If additional Redis deployments are added, parameterize the install script by release name |
 | Exporter Helm chart | Low | `prometheus-community/prometheus-redis-exporter` chart exists; switch to it if versioned Helm management is preferred |
+
+---
+
+## Recent Changes (2026-04-16)
+
+| Issue | Fix |
+|---|---|
+| Grafana password retrieval aborts install | Added `|| true` guard with warning message |
+| `run()` helper used unsafe `eval "$*"` | Replaced with `"$@"` |
+| Dashboard pinned to `latest` revision | Now pinned to revision 6 |
+| Diag.sh queried wrong Prometheus API | Now queries Alloy `/api/v0/web/components` |
+| Namespace guard missing on teardown | Added existence check before Alloy ConfigMap operations |
 
 ---
 
