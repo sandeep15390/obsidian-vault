@@ -13,30 +13,15 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "README.md",
+                "file": "Projects/Dark Software Factory/Architecture.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "README"
-            }
-          },
-          {
-            "id": "c0a0e7b09aedba44",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Projects/Homelab/Postgres.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "Postgres"
+              "title": "Architecture"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -208,46 +193,49 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "c0a0e7b09aedba44",
+  "active": "67ed567034c528b2",
   "lastOpenFiles": [
-    "Projects/Homelab/Teardown Reinstall Validation - Redis.md",
-    "Projects/Homelab/Teardown Reinstall Validation - Redis.md.tmp.747305.1776392484597",
-    "Projects/Homelab/Teardown Reinstall Validation.md.tmp.747305.1776392468856",
-    "Projects/Homelab/Redis Metrics.md.tmp.747305.1776392443975",
-    "Projects/Homelab/Redis.md.tmp.747305.1776392438724",
-    "Projects/Homelab/Redis Metrics.md.tmp.747305.1776392427327",
-    "Projects/Homelab/Redis.md.tmp.747305.1776392416600",
-    "Projects/Homelab/Redis.md.tmp.747305.1776392400510",
-    "Projects/Homelab/LiteLLM.md.tmp.671843.1776388252434",
-    "Projects/Homelab/LiteLLM.md.tmp.671843.1776388246952",
-    "Projects/Homelab/Teardown Reinstall Validation - LiteLLM.md.tmp.671843.1776388243057",
-    "Projects/Homelab/Teardown Reinstall Validation - LiteLLM.md",
-    "Projects/Homelab/LiteLLM.md",
+    "Projects/Dark Software Factory/Overview.md",
+    "Projects/Dark Software Factory/Architecture.md",
+    "Projects/Homelab/Overview.md.tmp.1415443.1776460037296",
+    "README.md",
+    "Projects/Homelab/Overview.md.tmp.1415443.1776460030524",
+    "Projects/Homelab/Dark Software Factory - Implementation Plan.md",
+    "Projects/Dark Software Factory/Implementation Plan.md",
+    "Projects/Dark Software Factory/Implementation Plan.md.tmp.1415443.1776460017086",
+    "Projects/Dark Software Factory/Worker Registry.md",
+    "Projects/Dark Software Factory/Worker Registry.md.tmp.1415443.1776459935747",
+    "Projects/Dark Software Factory/Architecture.md.tmp.1415443.1776459890552",
+    "Projects/Dark Software Factory/Overview.md.tmp.1415443.1776459837734",
+    "Projects/Homelab/Dark Software Factory.md",
+    "Projects/Dark Software Factory",
+    "Projects/Telugu Teacher/Overview.md",
+    "Projects/README.md",
+    "Projects/Market Time Machine/Overview.md",
+    "Projects/Homelab/Overview.md.tmp.1415443.1776459668575",
+    "Projects/Homelab/Overview.md.tmp.1415443.1776459662298",
+    "Projects/Homelab/Dark Software Factory - Implementation Plan.md.tmp.1415443.1776459651925",
+    "Projects/Homelab/Dark Software Factory - Worker Registry.md",
+    "Projects/Homelab/Metrics.md",
+    "Projects/Homelab/NVIDIA Device Plugin.md",
+    "Projects/Homelab/Teardown Reinstall Validation.md",
+    "Untitled 6.canvas",
+    "Untitled 5.canvas",
+    "2026-04-17.md",
+    "Untitled 4.canvas",
+    "Projects/Homelab/Kubernetes.md",
+    "Untitled 3.canvas",
+    "Projects/Homelab/GPU Monitoring.md",
+    "Projects/Homelab/Commands.md",
     "Projects/Homelab/LiteLLM Implementation Plan.md",
+    "Projects/Homelab/LiteLLM.md",
     "Projects/Homelab/Postgres.md",
+    "Projects/Homelab/Teardown Reinstall Validation - Redis.md",
+    "Projects/Homelab/Teardown Reinstall Validation - LiteLLM.md",
     "Projects/Homelab/Teardown Reinstall Validation - Postgres.md",
     "Projects/Homelab/Teardown Reinstall Validation - NVIDIA Device Plugin.md",
-    "Projects/Homelab/Postgres Metrics.md",
-    "Projects/Homelab/Overview.md",
-    "Projects/Homelab/Redis Metrics.md",
-    "Projects/Homelab/Redis.md",
-    "Projects/Homelab/Teardown Reinstall Validation.md",
-    "Projects/Homelab/Teardown Reinstall Validation - Metrics.md",
-    "Projects/Homelab/Teardown Reinstall Validation - Logging.md",
-    "Projects/Homelab/NVIDIA Device Plugin.md",
-    "Projects/Homelab/Logging.md",
-    "Projects/Homelab/Metrics.md",
-    "Projects/Homelab/Commands.md",
-    "Projects/Homelab/Kubernetes.md",
-    "Projects/Homelab/GPU Monitoring.md",
-    "Projects/Homelab/iptables Watchdog.md",
-    "Projects/README.md",
-    "Projects/Telugu Teacher/Architecture & Project Plan.md",
-    "2026-04-04.md",
     "Untitled 2.canvas",
     "Untitled 1.canvas",
-    "Projects/Homelab Observability/Commands.md",
-    "Projects/Homelab Observability/Overview.md",
     "Untitled.canvas"
   ]
 }

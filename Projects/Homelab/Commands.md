@@ -204,3 +204,5 @@ sudo docker ps | grep dcgm
 kubectl port-forward svc/alloy-metrics 12345:12345 -n metrics &
 curl -s http://localhost:12345/targets | python3 -m json.tool | grep -A5 dcgm
 ```
+
+litellm virtual key - 'sk-780knog4vdabwHzR0cqEJg'

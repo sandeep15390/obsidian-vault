@@ -29,6 +29,14 @@ A home lab covering infrastructure, services, observability, networking, and aut
 - [[Redis|Redis]] — In-cluster Redis: connection strings, auth, application integration, and deploy/teardown
 - [[Redis Metrics|Redis Metrics]] — redis_exporter, Alloy scraping, Grafana dashboard `redis-overview`
 - [[Postgres|PostgreSQL]] — In-cluster Postgres: connection strings, auth, application integration, and deploy/teardown
+- [[LiteLLM]] — LLM API gateway; Ollama + cloud models; 9 local models; virtual key management
+
+## AI / Automation
+
+- **LiteLLM** — OpenAI-compatible LLM API gateway; routes to local Ollama (9 models) + cloud APIs ✅ — see [[LiteLLM]]
+- **Dark Software Factory** — Autonomous agent pipeline running on this cluster's infrastructure. Lives in its own project: `Projects/Dark Software Factory/`
+
+---
 
 ## Possible Automation Gaps
 
