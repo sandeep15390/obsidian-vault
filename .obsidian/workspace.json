@@ -11,14 +11,14 @@
             "id": "67ed567034c528b2",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "split-diff-view",
               "state": {
-                "file": "Projects/Dark Software Factory/Architecture.md",
-                "mode": "source",
-                "source": false
+                "aFile": "Projects/Dark Software Factory/Architecture.md",
+                "bFile": "Projects/Dark Software Factory/Architecture.md",
+                "aRef": ""
               },
-              "icon": "lucide-file",
-              "title": "Architecture"
+              "icon": "diff",
+              "title": "Diff: Architecture  (Working Tree)"
             }
           }
         ]
@@ -195,26 +195,26 @@
   },
   "active": "67ed567034c528b2",
   "lastOpenFiles": [
-    "Projects/Dark Software Factory/Overview.md",
+    "Projects/Dark Software Factory/Implementation Plan.md",
+    "Projects/Dark Software Factory/Implementation Plan.md.tmp.1415443.1776460942762",
+    "Projects/Dark Software Factory/Architecture.md.tmp.1415443.1776460884809",
+    "Projects/Dark Software Factory/Worker Registry.md.tmp.1415443.1776460839195",
+    "Projects/Dark Software Factory/Overview.md.tmp.1415443.1776460779506",
     "Projects/Dark Software Factory/Architecture.md",
+    "Projects/Dark Software Factory/Overview.md",
     "Projects/Homelab/Overview.md.tmp.1415443.1776460037296",
     "README.md",
     "Projects/Homelab/Overview.md.tmp.1415443.1776460030524",
     "Projects/Homelab/Dark Software Factory - Implementation Plan.md",
-    "Projects/Dark Software Factory/Implementation Plan.md",
     "Projects/Dark Software Factory/Implementation Plan.md.tmp.1415443.1776460017086",
     "Projects/Dark Software Factory/Worker Registry.md",
     "Projects/Dark Software Factory/Worker Registry.md.tmp.1415443.1776459935747",
     "Projects/Dark Software Factory/Architecture.md.tmp.1415443.1776459890552",
     "Projects/Dark Software Factory/Overview.md.tmp.1415443.1776459837734",
     "Projects/Homelab/Dark Software Factory.md",
-    "Projects/Dark Software Factory",
     "Projects/Telugu Teacher/Overview.md",
     "Projects/README.md",
     "Projects/Market Time Machine/Overview.md",
-    "Projects/Homelab/Overview.md.tmp.1415443.1776459668575",
-    "Projects/Homelab/Overview.md.tmp.1415443.1776459662298",
-    "Projects/Homelab/Dark Software Factory - Implementation Plan.md.tmp.1415443.1776459651925",
     "Projects/Homelab/Dark Software Factory - Worker Registry.md",
     "Projects/Homelab/Metrics.md",
     "Projects/Homelab/NVIDIA Device Plugin.md",
