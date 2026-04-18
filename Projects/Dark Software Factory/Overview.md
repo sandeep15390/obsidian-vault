@@ -21,6 +21,7 @@ A fully automated, human-minimal software development pipeline — a "dark facto
 - [[Implementation Plan]] — 9-phase build plan with blocking questions, per-phase exit criteria, and deploy commands
 - [[Running the Factory]] — how to install, submit tasks, check status, and tear down
 - [[Requirements - Agent Loop Detection]] — loop detection and escalation requirement, with observed incident from 2026-04-17
+- [[OpenCode Adapter]] — how the opencode adapter works: request flow, Ollama config, API, known limitations
 
 ## Status
 
