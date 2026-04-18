@@ -19,19 +19,23 @@ A fully automated, human-minimal software development pipeline — a "dark facto
 - [[Architecture]] — system design, component roles, data flow, ACP integration layer
 - [[Worker Registry]] — all 13 workers: agent CLI × model pairings, capabilities, direct model endpoints
 - [[Implementation Plan]] — 9-phase build plan with blocking questions, per-phase exit criteria, and deploy commands
+- [[Running the Factory]] — how to install, submit tasks, check status, and tear down
+- [[Requirements - Agent Loop Detection]] — loop detection and escalation requirement, with observed incident from 2026-04-17
 
 ## Status
 
-- [ ] Phase 0: Blocking questions resolved — ACP SDK, OpenCode API, OpenHands runtime, Claude Code flags, Qwen Code flags pinned
-- [ ] Phase 1: Namespace, DB schema, secrets (cloud API keys only)
-- [ ] Phase 2: ACP Broker deployed (`GET /agents` returns 5 adapters)
-- [ ] Phase 3: OpenCode adapter deployed and smoke-tested
-- [ ] Phase 4: OpenHands adapter deployed and smoke-tested
-- [ ] Phase 5: Codex adapter deployed and smoke-tested
-- [ ] Phase 6: Claude Code adapter deployed and smoke-tested
-- [ ] Phase 6.5: Qwen Code adapter deployed and smoke-tested
-- [ ] Phase 7: Orchestrator — task intake, decomposition, routing, aggregation
-- [ ] Phase 8: Observability — Prometheus metrics + Grafana dashboard `dark-factory-overview`
+> Last updated: 2026-04-18
+
+- [x] Phase 0: Blocking questions resolved — versions pinned in `VERSIONS.env`; direct Ollama path validated
+- [x] Phase 1: Namespace, DB schema, secrets — schema.sql complete with 4 tables + indexes; install.sh creates secrets
+- [x] Phase 2: ACP Broker — worker hot-reload, per-run model injection, SSE proxying, Prometheus metrics
+- [x] Phase 3: OpenCode adapter — HTTP proxy to OpenCode server, polling, SSE relay
+- [x] Phase 4: OpenHands adapter — HTTP proxy to OpenHands server, polling, SSE relay
+- [x] Phase 5: Codex adapter — subprocess, streaming output
+- [x] Phase 6: Claude Code adapter — subprocess, stream-json parsing, validated with direct Ollama
+- [x] Phase 6.5: Qwen Code adapter — subprocess, streaming output
+- [x] Phase 7: Orchestrator — task intake, SSE decomposition parsing, routing, aggregation, HMAC webhook validation, duration metrics fixed
+- [x] Phase 8: Observability — Prometheus metrics on broker + orchestrator; Grafana `dark-factory-overview` dashboard including `dark_factory_worker_success_rate`
 - [ ] Phase 9: 59/59 tests passing; 3 destructive teardown/reinstall cycles validated
 
 ## Kubernetes Requirements
