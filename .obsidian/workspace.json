@@ -11,17 +11,32 @@
             "id": "67ed567034c528b2",
             "type": "leaf",
             "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Projects/Homelab/iptables Watchdog.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "iptables Watchdog"
+            }
+          },
+          {
+            "id": "e9759db01a6f8853",
+            "type": "leaf",
+            "state": {
               "type": "split-diff-view",
               "state": {
-                "aFile": "Projects/Dark Software Factory/Architecture.md",
-                "bFile": "Projects/Dark Software Factory/Architecture.md",
+                "aFile": "Projects/Homelab/Temporal.md",
+                "bFile": "Projects/Homelab/Temporal.md",
                 "aRef": ""
               },
               "icon": "diff",
-              "title": "Diff: Architecture  (Working Tree)"
+              "title": "Diff: Temporal  (Working Tree)"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -193,49 +208,50 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "67ed567034c528b2",
+  "active": "68c0a2465cace2f9",
   "lastOpenFiles": [
-    "Projects/Dark Software Factory/Implementation Plan.md",
-    "Projects/Dark Software Factory/Implementation Plan.md.tmp.1415443.1776460942762",
-    "Projects/Dark Software Factory/Architecture.md.tmp.1415443.1776460884809",
-    "Projects/Dark Software Factory/Worker Registry.md.tmp.1415443.1776460839195",
-    "Projects/Dark Software Factory/Overview.md.tmp.1415443.1776460779506",
-    "Projects/Dark Software Factory/Architecture.md",
-    "Projects/Dark Software Factory/Overview.md",
-    "Projects/Homelab/Overview.md.tmp.1415443.1776460037296",
-    "README.md",
-    "Projects/Homelab/Overview.md.tmp.1415443.1776460030524",
-    "Projects/Homelab/Dark Software Factory - Implementation Plan.md",
-    "Projects/Dark Software Factory/Implementation Plan.md.tmp.1415443.1776460017086",
-    "Projects/Dark Software Factory/Worker Registry.md",
-    "Projects/Dark Software Factory/Worker Registry.md.tmp.1415443.1776459935747",
-    "Projects/Dark Software Factory/Architecture.md.tmp.1415443.1776459890552",
-    "Projects/Dark Software Factory/Overview.md.tmp.1415443.1776459837734",
-    "Projects/Homelab/Dark Software Factory.md",
-    "Projects/Telugu Teacher/Overview.md",
+    "Projects/Homelab/iptables Watchdog.md",
+    "Projects/WhatsApp Telugu-English Translator Bot/Overview.md",
     "Projects/README.md",
     "Projects/Market Time Machine/Overview.md",
+    "2026-04-17.md",
+    "Untitled 1.base",
+    "Untitled 2.base",
+    "Untitled 1.canvas",
+    "Untitled.canvas",
+    "Untitled 6.canvas",
+    "Untitled 5.canvas",
+    "Projects/Homelab/Commands.md",
+    "Projects/Homelab/Distributed Tracing Implementation Plan.md",
+    "Projects/Homelab/Overview.md.tmp.2038401.1776651920031",
+    "Projects/Homelab/Overview.md.tmp.2038401.1776651915795",
+    "Projects/Homelab/Temporal.md",
+    "Projects/Homelab/Temporal.md.tmp.2038401.1776651909062",
+    "Projects/Homelab/Distributed Tracing.md.tmp.3467288.1776547188239",
+    "Projects/Homelab/Distributed Tracing Implementation Plan.md.tmp.3649658.1776543221462",
+    "Projects/Homelab/Distributed Tracing Implementation Plan.md.tmp.3649658.1776542977907",
+    "Projects/Homelab/Distributed Tracing.md.tmp.3649658.1776542913747",
+    "Projects/Dark Software Factory/Overview.md.tmp.3467288.1776537942032",
+    "Projects/Dark Software Factory/OpenCode Adapter.md",
+    "Projects/Dark Software Factory/Running the Factory.md",
+    "Projects/Dark Software Factory/Requirements - Agent Loop Detection.md",
+    "Projects/Homelab/Tracing Implementation Plan.md",
+    "Projects/Dark Software Factory/Implementation Plan.md",
+    "Projects/Homelab/Distributed Tracing.md",
+    "Projects/Dark Software Factory/Architecture.md",
+    "Projects/Dark Software Factory/Overview.md",
+    "README.md",
+    "Projects/Homelab/Dark Software Factory - Implementation Plan.md",
+    "Projects/Dark Software Factory/Worker Registry.md",
+    "Projects/Homelab/Dark Software Factory.md",
+    "Projects/Telugu Teacher/Overview.md",
     "Projects/Homelab/Dark Software Factory - Worker Registry.md",
     "Projects/Homelab/Metrics.md",
     "Projects/Homelab/NVIDIA Device Plugin.md",
     "Projects/Homelab/Teardown Reinstall Validation.md",
-    "Untitled 6.canvas",
-    "Untitled 5.canvas",
-    "2026-04-17.md",
     "Untitled 4.canvas",
     "Projects/Homelab/Kubernetes.md",
     "Untitled 3.canvas",
-    "Projects/Homelab/GPU Monitoring.md",
-    "Projects/Homelab/Commands.md",
-    "Projects/Homelab/LiteLLM Implementation Plan.md",
-    "Projects/Homelab/LiteLLM.md",
-    "Projects/Homelab/Postgres.md",
-    "Projects/Homelab/Teardown Reinstall Validation - Redis.md",
-    "Projects/Homelab/Teardown Reinstall Validation - LiteLLM.md",
-    "Projects/Homelab/Teardown Reinstall Validation - Postgres.md",
-    "Projects/Homelab/Teardown Reinstall Validation - NVIDIA Device Plugin.md",
-    "Untitled 2.canvas",
-    "Untitled 1.canvas",
-    "Untitled.canvas"
+    "Untitled 2.canvas"
   ]
 }

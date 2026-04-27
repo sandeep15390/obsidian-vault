@@ -17,6 +17,7 @@ A home lab covering infrastructure, services, observability, networking, and aut
 - **Alerting** — Alertmanager *(planned)*
 - **Network Monitoring** — Uptime Kuma / ntopng *(planned)*
 - **Tracing** — Tempo / Jaeger *(planned)*
+- **Temporal** — Durable workflow engine; PostgreSQL backend; k3s deployment *(planned)* — see [[Temporal]]
 
 ## Pages
 - [[Commands|Commands]] — Bootstrap, startup, and quick-reference commands
@@ -109,3 +110,4 @@ A collection of browser-playable classic games hosted as a GitHub repo.
 - [ ] Set up network monitoring
 - [ ] Build k8s cluster / node overview Grafana dashboards
 - [ ] Create `bootstrap.sh` in `home_infra/` to chain full rebuild (k3s → kubeconfig → helm → logging → tailscale)
+- [ ] Deploy Temporal (durable workflow engine, PostgreSQL backend) — see [[Temporal]]
