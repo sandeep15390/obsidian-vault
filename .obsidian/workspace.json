@@ -25,14 +25,14 @@
             "id": "e9759db01a6f8853",
             "type": "leaf",
             "state": {
-              "type": "split-diff-view",
+              "type": "markdown",
               "state": {
-                "aFile": "Projects/Homelab/Temporal.md",
-                "bFile": "Projects/Homelab/Temporal.md",
-                "aRef": ""
+                "file": "Projects/Market Time Machine/Architecture.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "diff",
-              "title": "Diff: Temporal  (Working Tree)"
+              "icon": "lucide-file",
+              "title": "Architecture"
             }
           }
         ],
@@ -208,12 +208,18 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "68c0a2465cace2f9",
+  "active": "e9759db01a6f8853",
   "lastOpenFiles": [
+    "Projects/Market Time Machine/Architecture.md.tmp.2663194.1777333258764",
+    "Projects/Market Time Machine/Architecture.md.tmp.2663194.1777333254665",
+    "Projects/Market Time Machine/Overview.md",
+    "Projects/Market Time Machine/Architecture.md",
+    "Projects/Market Time Machine/Architecture.md.tmp.2529688.1777320778720",
+    "Projects/Market Time Machine/Overview.md.tmp.2122388.1777320279039",
+    "Projects/Market Time Machine/Architecture.md.tmp.2122388.1777320253110",
     "Projects/Homelab/iptables Watchdog.md",
     "Projects/WhatsApp Telugu-English Translator Bot/Overview.md",
     "Projects/README.md",
-    "Projects/Market Time Machine/Overview.md",
     "2026-04-17.md",
     "Untitled 1.base",
     "Untitled 2.base",
@@ -228,10 +234,6 @@
     "Projects/Homelab/Temporal.md",
     "Projects/Homelab/Temporal.md.tmp.2038401.1776651909062",
     "Projects/Homelab/Distributed Tracing.md.tmp.3467288.1776547188239",
-    "Projects/Homelab/Distributed Tracing Implementation Plan.md.tmp.3649658.1776543221462",
-    "Projects/Homelab/Distributed Tracing Implementation Plan.md.tmp.3649658.1776542977907",
-    "Projects/Homelab/Distributed Tracing.md.tmp.3649658.1776542913747",
-    "Projects/Dark Software Factory/Overview.md.tmp.3467288.1776537942032",
     "Projects/Dark Software Factory/OpenCode Adapter.md",
     "Projects/Dark Software Factory/Running the Factory.md",
     "Projects/Dark Software Factory/Requirements - Agent Loop Detection.md",
@@ -248,9 +250,7 @@
     "Projects/Homelab/Dark Software Factory - Worker Registry.md",
     "Projects/Homelab/Metrics.md",
     "Projects/Homelab/NVIDIA Device Plugin.md",
-    "Projects/Homelab/Teardown Reinstall Validation.md",
     "Untitled 4.canvas",
-    "Projects/Homelab/Kubernetes.md",
     "Untitled 3.canvas",
     "Untitled 2.canvas"
   ]
