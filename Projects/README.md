@@ -8,3 +8,4 @@ Active and planned projects.
 | [[Market Time Machine/Overview\|Market Time Machine]] | Options strategy backtester with a time-travel simulation experience |
 | [[WhatsApp Telugu-English Translator Bot/Overview\|WhatsApp Telugu-English Translator Bot]] | WhatsApp group bot that auto-translates between Telugu and English |
 | [[Homelab/Overview\|Homelab]] | Home lab covering infrastructure, services, observability, networking, and automation |
+| [[Ticker Research/Overview\|Ticker Research]] | Analyst ratings, price targets, and rating changes for a given ticker — first component of the options trading app |
