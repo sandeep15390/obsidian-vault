@@ -16,8 +16,8 @@
 - [x] Confirm Temporal Web UI accessible — Tailscale `https://temporal-web.tailc98a25.ts.net`
 - [x] Confirm gRPC API reachable on port 7233 in-cluster
 - [x] Expose Web UI on Tailscale NodePort 32304
-- [ ] Verify Alloy scrape targets for temporal pods are UP in Prometheus
-- [ ] Confirm Grafana dashboard `temporal-overview` panels populate
+- [x] Verify Alloy scrape targets for temporal pods are UP in Prometheus — 4/4 pods scraped via `kubernetes-pods` job using pod annotations; all `health=up`
+- [x] Confirm Grafana dashboard `temporal-overview` panels populate — all 8 panels fixed and verified
 - [ ] All automated tests passing (`./test.sh`)
 - [ ] Validate teardown/reinstall reproducibility (3 destructive + 3 non-destructive cycles)
 
@@ -406,9 +406,18 @@ tctl namespace list
 
 ## Observability
 
-### Prometheus Scraping (via Alloy)
+### Prometheus Scraping
 
-Each Temporal service pod is annotated with `prometheus.io/scrape: "true"` and `prometheus.io/port: "9090"` when `metrics.annotations.enabled: true` is set in values. Alloy's existing pod annotation scrape job in the `logging` namespace will pick these up automatically.
+Each Temporal service pod is annotated with `prometheus.io/scrape: "true"` and `prometheus.io/port: "9090"` when `metrics.annotations.enabled: true` is set in values. Prometheus's built-in `kubernetes-pods` scrape job (from the chart's default `kubernetes_sd_configs`) picks these up automatically — no Alloy config change needed. All 4 service pods (frontend/history/matching/worker) are scraped with `health=up`.
+
+> **Note on metric naming:** Temporal uses two distinct metric namespaces:
+>
+> - **Server services** (frontend/history/matching) expose metrics **without** a `temporal_` prefix: `client_requests`, `client_latency_bucket`, `persistence_requests`, `persistence_latency_bucket`, `num_goroutines`. These use Temporal's own instrumentation.
+> - **Worker/SDK** (the internal system worker) exposes metrics **with** the `temporal_` prefix: `temporal_request`, `temporal_request_latency_bucket`, `temporal_workflow_task_schedule_to_start_latency_bucket`, etc.
+>
+> The `namespace` label on temporal metrics is the **Temporal application namespace** (`temporal_system`, `default`, `_unknown_`) — **not** the Kubernetes namespace. Use `app_kubernetes_io_name="temporal"` to select all temporal pods.
+>
+> Temporal uses the [uber-go/tally](https://github.com/uber-go/tally) metrics library, which does **not** expose Go runtime metrics (`go_goroutines`, `process_resident_memory_bytes`). Use `num_goroutines` (Temporal's own count) and `container_memory_rss` (from cAdvisor) instead.
 
 **Verify scraping is active:**
 
