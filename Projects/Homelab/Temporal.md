@@ -4,20 +4,22 @@
 
 ## Status
 
-- [ ] Create Temporal databases and user in PostgreSQL (`temporal`, `temporal_visibility`)
-- [ ] Add Helm repo `https://go.temporal.io/helm-charts`
-- [ ] Pin chart version; document it in this file
-- [ ] Configure Helm values for external PostgreSQL persistence
-- [ ] Deploy stack: `./install.sh`
-- [ ] Verify all 4 services Running + Ready (frontend, history, matching, worker)
-- [ ] Verify schema jobs completed successfully
-- [ ] Confirm Temporal Web UI accessible at `http://temporal-web.homelab.local`
-- [ ] Confirm gRPC API reachable on port 7233 in-cluster
-- [ ] Verify `temporal-metrics` Alloy scrape target is UP in Prometheus
-- [ ] Import Temporal Grafana dashboard; confirm panels populate
+**Deployed 2026-04-22. Chart: `temporal/temporal` 0.54.0. App: 1.26.2.**
+
+- [x] Create Temporal databases and user in PostgreSQL (`temporal`, `temporal_visibility`)
+- [x] Add Helm repo `https://go.temporal.io/helm-charts`
+- [x] Pin chart version — `0.54.0`
+- [x] Configure Helm values for external PostgreSQL persistence
+- [x] Deploy stack: `./install.sh`
+- [x] Verify all services Running + Ready (frontend, history, matching, worker, web, admintools)
+- [x] Verify schema jobs completed successfully
+- [x] Confirm Temporal Web UI accessible — Tailscale `https://temporal-web.tailc98a25.ts.net`
+- [x] Confirm gRPC API reachable on port 7233 in-cluster
+- [x] Expose Web UI on Tailscale NodePort 32304
+- [ ] Verify Alloy scrape targets for temporal pods are UP in Prometheus
+- [ ] Confirm Grafana dashboard `temporal-overview` panels populate
 - [ ] All automated tests passing (`./test.sh`)
 - [ ] Validate teardown/reinstall reproducibility (3 destructive + 3 non-destructive cycles)
-- [ ] Expose Web UI on Tailscale NodePort 32304
 
 ---
 
@@ -46,7 +48,7 @@
 graph TD
     subgraph Tailscale["Tailscale / External"]
         TSWeb["Tailscale svc:temporal-web\nNodePort 32304 → :8080"]
-        TSFrontend["Tailscale svc:temporal-frontend\nNodePort 32303 → :7233"]
+        TSFrontend["Tailscale svc:temporal-frontend\nNodePort 32306 → :7233"]
     end
 
     subgraph K8s["Ubuntu Node — melody-beast (10.0.0.7)"]
@@ -165,6 +167,15 @@ helm search repo temporal/temporal   # identify latest chart version; pin it bel
 ### `values.yaml` (save to `~/src/home_infra/temporal/values.yaml`)
 
 ```yaml
+# Disable bundled observability — use shared metrics/logging namespaces.
+# Without this the chart deploys its own prometheus/grafana/alertmanager/node-exporter,
+# which conflicts with the homelab-wide stack (node-exporter hostPort 9100 clash).
+prometheus:
+  enabled: false
+
+grafana:
+  enabled: false
+
 # Disable all bundled datastores — use external PostgreSQL
 cassandra:
   enabled: false
@@ -314,7 +325,7 @@ server:
 |---|---|---|---|---|
 | temporal-frontend | temporal | ClusterIP | 7233 | gRPC API (in-cluster) |
 | temporal-frontend | temporal | ClusterIP | 7243 | HTTP API (in-cluster) |
-| temporal-frontend | temporal | NodePort 32303 | 7233 | gRPC API (Tailscale external) |
+| temporal-frontend | temporal | NodePort 32306 | 7233 | gRPC API (Tailscale external) |
 | temporal-history | temporal | ClusterIP | 7234 | Internal inter-service RPC |
 | temporal-matching | temporal | ClusterIP | 7235 | Internal inter-service RPC |
 | temporal-worker | temporal | ClusterIP | 7239 | Internal inter-service RPC |
@@ -331,8 +342,11 @@ server:
 | 32300 | grafana-tailscale (NodePort) |
 | 32301 | loki-tailscale (NodePort) |
 | 32302 | prometheus-tailscale (NodePort) |
-| 32303 | temporal-frontend-tailscale (NodePort) ← new |
-| 32304 | temporal-web-tailscale (NodePort) ← new |
+| 32303 | litellm (NodePort) |
+| 32304 | temporal-web-tailscale (NodePort) |
+| 32305 | tempo-tailscale (NodePort) |
+| 32306 | temporal-frontend-tailscale (NodePort) |
+| 32307 | open-webui (NodePort) |
 
 ---
 

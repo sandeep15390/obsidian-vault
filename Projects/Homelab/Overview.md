@@ -8,16 +8,17 @@ A home lab covering infrastructure, services, observability, networking, and aut
 - **Redis** — In-cluster key/value store, 2GB memory, AOF+RDB persistence, allkeys-lru eviction ✅ — see [[Redis]]
 - **PostgreSQL** — In-cluster relational database, standalone primary, 10Gi persistence, `homelab` database ✅ — see [[Postgres]]
 - **PostgreSQL Metrics** — postgres_exporter + Prometheus + dual Grafana dashboards (metrics + logs) ✅ — see [[Postgres Metrics]]
+- **Open WebUI** — Browser-based LLM chat interface backed by LiteLLM; NodePort 32307; Tailscale at `openwebui.tailc98a25.ts.net` ✅ — see [[Open WebUI]]
 
 ## Observability
 - **Logging** — Loki + Grafana Alloy + Grafana, deployed to k3s ✅ **Complete** — 34 automated tests, teardown/reinstall validated (6 cycles)
 - **Metrics** — Prometheus + Alloy + Grafana ✅ **Complete** — 37+ automated tests, teardown/reinstall validated — see [[Metrics]]
 - **GPU Monitoring** — DCGM Exporter + Grafana ✅ **Complete** — 38 automated tests, dashboard uid `gpu-overview`, 2× RTX PRO 6000 Blackwell — see [[GPU Monitoring]]
 - **Redis Metrics** — redis_exporter + Alloy scraping + Grafana dashboard uid `redis-overview` ✅ **Complete** — 22 automated tests, 3 teardown cycles — see [[Redis Metrics]]
+- **Tracing** — Tempo + OpenTelemetry Collector ✅ **Complete** — 27 automated tests, Grafana dashboard, Tailscale at `tempo.tailc98a25.ts.net` — see [[Distributed Tracing]]
+- **Temporal** — Durable workflow engine; PostgreSQL backend; Helm chart 0.54.0 / app 1.26.2 ✅ **Deployed** — Grafana dashboard `temporal-overview`, Tailscale at `temporal-web.tailc98a25.ts.net` — see [[Temporal]]
 - **Alerting** — Alertmanager *(planned)*
 - **Network Monitoring** — Uptime Kuma / ntopng *(planned)*
-- **Tracing** — Tempo / Jaeger *(planned)*
-- **Temporal** — Durable workflow engine; PostgreSQL backend; k3s deployment *(planned)* — see [[Temporal]]
 
 ## Pages
 - [[Commands|Commands]] — Bootstrap, startup, and quick-reference commands
@@ -31,10 +32,15 @@ A home lab covering infrastructure, services, observability, networking, and aut
 - [[Redis Metrics|Redis Metrics]] — redis_exporter, Alloy scraping, Grafana dashboard `redis-overview`
 - [[Postgres|PostgreSQL]] — In-cluster Postgres: connection strings, auth, application integration, and deploy/teardown
 - [[LiteLLM]] — LLM API gateway; Ollama + cloud models; 9 local models; virtual key management
+- [[Open WebUI]] — Browser LLM chat UI backed by LiteLLM; Tailscale access
+- [[Temporal]] — Durable workflow engine; PostgreSQL backend; gRPC API + Web UI
+- [[Distributed Tracing]] — Tempo + OpenTelemetry Collector; tracing instrumentation guide
 
 ## AI / Automation
 
 - **LiteLLM** — OpenAI-compatible LLM API gateway; routes to local Ollama (9 models) + cloud APIs ✅ — see [[LiteLLM]]
+- **Open WebUI** — Browser-based chat interface over LiteLLM; Tailscale at `openwebui.tailc98a25.ts.net` ✅ — see [[Open WebUI]]
+- **Temporal** — Durable workflow engine for automation pipelines; gRPC API at `temporal-frontend.temporal.svc.cluster.local:7233` ✅ — see [[Temporal]]
 - **Dark Software Factory** — Autonomous agent pipeline running on this cluster's infrastructure. Lives in its own project: `Projects/Dark Software Factory/`
 
 ---
@@ -87,6 +93,13 @@ A collection of browser-playable classic games hosted as a GitHub repo.
 - Grafana (port-forward): `kubectl port-forward svc/grafana 3000:80 -n logging`
 - Loki push (tailnet): `https://loki.tailc98a25.ts.net/loki/api/v1/push` ← preferred
 - Loki push (LAN): `http://10.0.0.7:31900/loki/api/v1/push`
+- Prometheus (tailnet): `https://prometheus.tailc98a25.ts.net`
+- Tempo (tailnet): `https://tempo.tailc98a25.ts.net`
+- LiteLLM (tailnet): `https://litellm.tailc98a25.ts.net`
+- Open WebUI (tailnet): `https://openwebui.tailc98a25.ts.net` ← preferred
+- Open WebUI (port-forward): `kubectl port-forward svc/open-webui 8080:80 -n openwebui`
+- Temporal Web UI (tailnet): `https://temporal-web.tailc98a25.ts.net`
+- Temporal gRPC (in-cluster): `temporal-frontend.temporal.svc.cluster.local:7233`
 - Infra repo: `~/src/home_infra`
 
 > **Note:** `10.0.0.7` is a DHCP address on `wlp9s0`. Scripts resolve the node IP dynamically at deploy time. If the IP changes, re-run `install.sh` and update these docs.
@@ -106,8 +119,10 @@ A collection of browser-playable classic games hosted as a GitHub repo.
 - [x] Build GPU metrics dashboard (DCGM Exporter + Grafana) — see [[GPU Monitoring]]
 - [x] Deploy Redis (in-cluster, 2GB, AOF persistence) — see [[Redis]]
 - [x] Redis metrics + Grafana dashboard — see [[Redis Metrics]]
+- [x] Deploy distributed tracing (Tempo + OTel Collector) — see [[Distributed Tracing]]
+- [x] Deploy Temporal (durable workflow engine, PostgreSQL backend) — see [[Temporal]]
+- [x] Deploy Open WebUI (browser chat UI over LiteLLM) — see [[Open WebUI]]
 - [ ] Set up alerting
 - [ ] Set up network monitoring
 - [ ] Build k8s cluster / node overview Grafana dashboards
 - [ ] Create `bootstrap.sh` in `home_infra/` to chain full rebuild (k3s → kubeconfig → helm → logging → tailscale)
-- [ ] Deploy Temporal (durable workflow engine, PostgreSQL backend) — see [[Temporal]]
